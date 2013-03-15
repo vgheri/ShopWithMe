@@ -17,6 +17,7 @@ var app = express();
 app.configure(function(){
   //app.set('views', __dirname + '/views');
   //app.set('view engine', viewEngine);
+  app.use(express.logger());
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
@@ -29,4 +30,3 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 // *******************************************************
-app.post('/profiles', function(req, res) {}/*VGTODO add function here*/);

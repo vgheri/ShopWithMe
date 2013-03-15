@@ -11,7 +11,7 @@
      password: {type: String, required: true},
      firstName: {type: String, required: true},
      lastName: {type: String, required: true},
-     creationDate: {type: Date, default: function() { return new Date(); }},
+     creationDate: {type: Date, default: Date.now},
      lastLogin: {type: Date, default: null},
      isActive: {type: Boolean, default: true},
      // If confirmation email system is implemented,  

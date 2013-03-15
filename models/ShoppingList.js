@@ -8,7 +8,7 @@
    
  var shoppingListSchema = mongoose.Schema({     
      createdBy: {type: mongoose.Schema.ObjectId, required: true, index: true},
-     creationDate: {type: Date, default: function() { return new Date(); }},
+     creationDate: {type: Date, default: Date.now},
      lastUpdate: {type: Date, default: null},
      isActive: {type: Boolean, default: true},
      title: {type: String, required: true},
