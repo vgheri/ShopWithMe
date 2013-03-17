@@ -4,7 +4,7 @@
  * Account model
  */ 
  var mongoose = require('mongoose');
- var shoppingListSchema = require('ShopWithMe/models/ShoppingList');
+ var shoppingListSchema = require('./ShoppingList');
  
  var accountSchema = mongoose.Schema({     
      username: {type: String, required: true, index: {unique: true}},
@@ -17,7 +17,7 @@
      // If confirmation email system is implemented,  
      // this can be set to false
      canLogin: {type: Boolean, default: true},
-     shoppingLists: {type: [shoppingListSchema], default: []}     
+     shoppingLists: {type: [shoppingListSchema.ShoppingListSchema], default: []}
  });
  
 accountSchema.methods.getFullName = function() {

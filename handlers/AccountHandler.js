@@ -5,7 +5,7 @@
  */ 
  
  var mongoose = require('mongoose');
- var Account = require('ShopWithMe/models/Account');
+ var Account = require('../models/Account');
  var winston = require('winston');
  
  var AccountHandler = function() {     
@@ -31,17 +31,21 @@
      });
  }
  
- function handleGetAccountRequest(username, request, response) {
-     findAccountByUsername(username, function(err, account) {
-         if (err) {
-             response.jsonp(400, {error: err.message})
-         }
-         else {
-             if (account) {
-                 response.jsonp(200, account);
-             }
-         }         
-     });
+ function handleGetAccountRequest(req, res) {
+   var username = req.params.username;
+   findAccountByUsername(username, function(err, account) {
+     if (err) {
+       res.jsonp(400, {error: err.message})
+     }
+     else {
+       if (account) {
+         res.jsonp(200, account);
+       }
+       else {
+         res.send("No account matching " + username);
+       }
+     }
+   });
  }
  
  function handleUpdateAccountRequest(firstName, lastName, request, response) {
@@ -67,9 +71,9 @@
  }
  
  function findAccountByUsername(username, callback) {
-     Account.findOne({username: username}, function(err, foundUsername) {
-        return callback(err, foundUsername); 
-     });     
+   Account.Account.findOne({username: username}, function(err, foundUsername) {
+    return callback(err, foundUsername);
+   });
  }
  
  function updateAccount(account, callback) {
@@ -79,6 +83,7 @@
  function disableAccount(username, callback) {
      throw new Error("Not implemented");
  }
- 
+
+ exports.AccountHandler = new AccountHandler();
  
  

@@ -21,4 +21,4 @@
  var ShoppingList = mongoose.model('ShoppingList', shoppingListSchema);
  
  exports.ShoppingList  = ShoppingList;
- 
+ exports.ShoppingListSchema = shoppingListSchema;

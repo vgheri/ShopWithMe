@@ -12,6 +12,9 @@
 //
 var express = require('express');
 var app = express();
+var accountHandler = require('./handlers/AccountHandler');
+var routes = require('./Routes');
+
 //var viewEngine = 'jade'; // modify for your view engine
 // Configuration
 app.configure(function(){
@@ -29,4 +32,16 @@ app.configure('development', function(){
 app.configure('production', function(){
   app.use(express.errorHandler());
 });
+
+var handlers = {
+  account: accountHandler.AccountHandler
+};
+
+function start() {
+  routes.setup(app, handlers);
+  var port = process.env.port || 3000;
+  app.listen(port);
+  console.log("Express server listening on port %d in %s mode", port, app.settings.env);
+}
 // *******************************************************
+exports.start = start;
