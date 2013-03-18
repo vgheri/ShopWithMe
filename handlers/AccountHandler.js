@@ -4,8 +4,7 @@
  * This class contains all the methods to handle Account related requests
  */ 
  
- var mongoose = require('mongoose');
- var Account = require('../models/Account');
+ var accountModule = require('../models/Account');
  var winston = require('winston');
  
  var AccountHandler = function() {     
@@ -15,34 +14,44 @@
      this.deleteAccount = handleDeleteAccountRequest;     
  };
  
- // On success should return status code 201 to notify the client the account creation has been successful
+ // On success should return status code 201 to notify the client the account
+ // creation has been successful
  // On error should return status code 400 and the error message
- function handleCreateAccountRequest(username, password, firstName, lastName, request, response) {
+ function handleCreateAccountRequest(req, res) {
+     var username = req.body.username;
+     var password = req.body.password;
+     var firstName = req.body.firstName;
+     var lastName = req.body.lastName;
      createAccount(username, password, firstName, lastName, function(err, account) {
          if (err) {             
             winston.log('error', 'An error has occurred while processing a request to create an ' +
-            'account from ' + request.connection.remoteAddress + 
+            'account from ' + req.connection.remoteAddress + 
             '. Stack trace: ' + err.stack);            
-            response.jsonp(400, {error: err.message})
+            res.jsonp(400, {error: err.message});
          }
          else {                         
-            response.jsonp(201, account);
+            res.jsonp(201, account);
          }         
      });
  }
  
+ /* TODO: I should update this function to check the identity of the origin.
+  We don't want anyone being able to peek into the username collection */
  function handleGetAccountRequest(req, res) {
    var username = req.params.username;
    findAccountByUsername(username, function(err, account) {
      if (err) {
-       res.jsonp(400, {error: err.message})
+       winston.log('error', 'An error has occurred while processing a request to retrieve an ' +
+            'account from ' + req.connection.remoteAddress + 
+            '. Stack trace: ' + err.stack);
+       res.jsonp(400, {error: err.message});
      }
      else {
        if (account) {
          res.jsonp(200, account);
        }
        else {
-         res.send("No account matching " + username);
+         res.jsonp(404, {error: "No account found matching " + username});
        }
      }
    });
@@ -58,7 +67,7 @@
  
    
  function createAccount(username, password, firstName, lastName, callback) {
-     var account = new Account({
+     var account = new accountModule.Account({
          username: username, 
          password: password, 
          firstName: firstName, 
@@ -71,7 +80,7 @@
  }
  
  function findAccountByUsername(username, callback) {
-   Account.Account.findOne({username: username}, function(err, foundUsername) {
+   accountModule.Account.findOne({username: username}, function(err, foundUsername) {
     return callback(err, foundUsername);
    });
  }
