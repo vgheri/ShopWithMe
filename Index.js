@@ -16,6 +16,7 @@
  winston.handleExceptions(new winston.transports.File({filename: 'logs/exceptions.log'}));
  console.log("logger started. Connecting to MongoDB...");
  mongoose.connect(config.db.mongodb);
- console.log("Successfully connected to MongoDB. Starting web server...")
+ console.log("Successfully connected to MongoDB. Starting web server...");
  server.start();
- console.log("Successfully started web server. Waiting for incoming connections...")
+ console.log("Successfully started web server. Waiting for incoming connections...");
+ 

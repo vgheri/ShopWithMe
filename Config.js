@@ -7,7 +7,8 @@
  */
 module.exports = {
     "db": {
-        "mongodb": "mongodb://localhost/ShopWithMe",
+        // Local testing "mongodb": "mongodb://localhost/ShopWithMe",
+        "mongodb": "mongodb://api:239rtjss9akjksf82@ds035787.mongolab.com:35787/shopwithme",
         "database": "ShopWithMe",
         "server": "localhost"
     }
