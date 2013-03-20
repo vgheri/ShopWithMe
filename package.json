@@ -11,7 +11,7 @@
     "devDependencies": {
         "supertest": "0.5.x",
         "mocha": "1.8.x",
-        "should": "1.2.x"
+        "should": "1.2.x"        
     },
     "scripts": {
         "test": "make test"

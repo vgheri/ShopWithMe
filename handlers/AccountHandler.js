@@ -148,8 +148,7 @@
          }
      });
  } 
- 
-   
+    
  function createAccount(username, password, firstName, lastName, callback) {
      var account = new accountModule.Account({
          username: username, 
