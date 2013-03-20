@@ -9,7 +9,7 @@
  var shoppingListSchema = mongoose.Schema({     
      createdBy: {type: mongoose.Schema.ObjectId, required: true, index: true},
      creationDate: {type: Date, default: Date.now},
-     lastUpdate: {type: Date, default: null},
+     lastUpdate: {type: Date, default: Date.now},
      isActive: {type: Boolean, default: true},
      title: {type: String, required: true},
      isShared: {type: Boolean, required: true},
@@ -18,7 +18,32 @@
      shoppingItems: {type: [{name: {type: String, required: true}, quantity: String}], default: []}
  });
  
+ // Checks if the list of invitees contains this invitee Id already
+ shoppingListSchema.methods.hasInvitee = function(id) {     
+     return this.invitees.some(function(current){
+         return id === current.id;
+     });     
+ }
+ 
+ // Checks if the shopping list contains this item name already 
+ shoppingListSchema.methods.hasItem = function(name) {     
+     return this.shoppingItems.some(function(current){
+         return name === current.name;
+     });     
+ }
+ 
+ shoppingListSchema.methods.toString = function() {
+     var listExport = this.title + ' (' + this.lastUpdate + ')';
+     listExport += '\n';
+     this.shoppingItems.forEach(function(item) {
+         listExport += item.name + ' - Quantity: ' + item.quantity;
+         listExport += '\n';
+     });
+     return listExport;     
+ }
+ 
  var ShoppingList = mongoose.model('ShoppingList', shoppingListSchema);
  
  exports.ShoppingList  = ShoppingList;
- exports.ShoppingListSchema = shoppingListSchema;
+ //exports.ShoppingListSchema = shoppingListSchema;
+ 

@@ -17,7 +17,8 @@
      // If confirmation email system is implemented,  
      // this can be set to false
      canLogin: {type: Boolean, default: true},
-     shoppingLists: {type: [shoppingListSchema.ShoppingListSchema], default: []}
+     //shoppingLists: {type: [shoppingListSchema.ShoppingListSchema], default: []}
+     shoppingLists: {type: [mongoose.Schema.ObjectId], default: []}
  });
  
 accountSchema.methods.getFullName = function() {
