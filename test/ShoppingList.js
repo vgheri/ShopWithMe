@@ -59,5 +59,10 @@
         shoppingList.shoppingItems[0].name.should.equal('bread');
         shoppingList.shoppingItems[0].quantity.should.equal('500g');
         shoppingList.hasItem('bread').should.equal(true);
-     });     
+     });    
+     it('should print itself in a string format', function() {
+        shoppingList.toString().should.not.equal('');        
+     });
  });
+ 
+ 
