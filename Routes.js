@@ -9,7 +9,7 @@
     app.post('/profiles', handlers.account.createAccount);
     app.get('/profiles/:username', handlers.account.getAccount);
     app.put('/profiles/:username', handlers.account.updateAccount);
-    app.delete('/profiles/:username', handlers.account.deleteAccount);
+    app.del('/profiles/:username', handlers.account.deleteAccount);
  }
 
  exports.setup = setup;

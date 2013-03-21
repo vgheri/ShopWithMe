@@ -123,7 +123,8 @@
      */
  }
  
- function handleDeleteAccountRequest(username, req, res) {          
+ function handleDeleteAccountRequest(req, res) {          
+     var username = req.params.username;
      disableAccount(username, function(err, account) {
          if (err) {
              winston.log('error', 'An error has occurred while processing a request to disable ' +
