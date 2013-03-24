@@ -12,7 +12,7 @@
 //
 var express = require('express');
 var app = express();
-var accountHandler = require('./handlers/AccountHandler');
+var AccountHandler = require('./handlers/AccountHandler');
 var routes = require('./Routes');
 var fs = require('fs');
 
@@ -36,7 +36,7 @@ app.configure('production', function(){
 });
 
 var handlers = {
-  account: accountHandler.AccountHandler
+  account: new AccountHandler()
 };
 
 function start() {

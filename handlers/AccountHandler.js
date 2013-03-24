@@ -27,13 +27,13 @@
             winston.log('error', 'An error has occurred while processing a request to create an ' +
             'account from ' + req.connection.remoteAddress + 
             '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);            
-            res.jsonp(400, {error: err.message});
+            res.json(400, {error: err.message});
          }
          else {        
             winston.log('info', 'Account ' + username + ' has been created.' + 
                 'Request from address ' + req.connection.remoteAddress + '.' +
                 'Timestamp: ' + new Date()); 
-            res.jsonp(201, account);
+            res.json(201, account);
          }         
      });
  }
@@ -47,20 +47,20 @@
          winston.log('error', 'An error has occurred while processing a request to retrieve ' +
             'account ' + username + ' from ' + req.connection.remoteAddress + 
             '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
-         res.jsonp(400, {error: err.message});
+         res.json(400, {error: err.message});
      }
      else {
        if (account) {
          winston.log('info', 'Account ' + username + ' has been retrieved.' + 
                 'Request from address ' + req.connection.remoteAddress + '.' +
                 'Timestamp: ' + new Date());  
-         res.jsonp(200, account);
+         res.json(200, account);
        }
        else {
          winston.log('info', 'Could not retrieve account ' + username + ', no ' + 
                 'such username. Request from address ' + req.connection.remoteAddress + '.' +
                 'Timestamp: ' + new Date());  
-         res.jsonp(404, {error: "No account found matching " + username});
+         res.json(404, {error: "No account found matching " + username});
        }
      }
    });
@@ -77,20 +77,20 @@
              winston.log('error', 'An error has occurred while processing a request to update ' +
              'account ' + username + ' from ' + req.connection.remoteAddress + 
              '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
-             res.jsonp(400, {error: err.message});
+             res.json(400, {error: err.message});
          } 
          else {
              if (account) {
                  winston.log('info', 'Account ' + username + ' has been updated.' + 
                  'Request from address ' + req.connection.remoteAddress + '.' +
                  'Timestamp: ' + new Date()); 
-                 res.jsonp(200, account);              
+                 res.json(200, account);
              }
              else {
                  winston.log('info', 'Could not update account ' + username + ', no ' + 
                  'such username. Request from address ' + req.connection.remoteAddress + '.' +
                  'Timestamp: ' + new Date());  
-                 res.jsonp(404, {error: "No account found matching " + username});             
+                 res.json(404, {error: "No account found matching " + username});
              }
          }
      });
@@ -130,7 +130,7 @@
              winston.log('error', 'An error has occurred while processing a request to disable ' +
              'account ' + username + ' from ' + req.connection.remoteAddress + 
              '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
-             res.jsonp(400, {error: err.message});
+             res.json(400, {error: err.message});
          } 
          else {
              if (account) {
@@ -138,13 +138,13 @@
                  'Request from address ' + req.connection.remoteAddress + '.' +
                  'Timestamp: ' + new Date());
                  // No need to return anything. We just disabled the account 
-                 res.jsonp(204);                 
+                 res.json(204, null);
              }
              else {
                  winston.log('info', 'Could not disable account ' + username + ', no ' + 
                  'such username. Request from address ' + req.connection.remoteAddress + '.' +
                  'Timestamp: ' + new Date()); 
-                 res.jsonp(404, {error: "No account found matching " + username});             
+                 res.json(404, {error: "No account found matching " + username});
              }
          }
      });
@@ -181,6 +181,6 @@
      accountModule.Account.findOneAndUpdate(query, {isActive: false, canLogin: false}, options, callback);
  }
 
- exports.AccountHandler = new AccountHandler();
+ module.exports = AccountHandler;
  
  

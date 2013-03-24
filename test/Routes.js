@@ -21,8 +21,12 @@
  
  describe('Routing', function() {
  	describe('Account', function() { 		
+		var url;
 		before(function(done) {
-			mongoose.connect("mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest");			
+			url = 'http://localhost:3000';
+			// Cloud 9
+			//url = 'https://project-livec93b91f71eb7.rhcloud.com';
+			mongoose.connect("mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest");
 			//server.start();				
 			done();
 		}); 
@@ -33,7 +37,7 @@
 				firstName: 'Valerio',
 				lastName: 'Gheri'
 			};
-			request('https://project-livec93b91f71eb7.rhcloud.com')
+			request(url)
 				.post('/profiles')
 				.send(profile)
 				.end(function(err, res) {
@@ -51,7 +55,7 @@
 				firstName: 'Valerio',
 				lastName: 'Gheri'
 			};
-			request('https://project-livec93b91f71eb7.rhcloud.com')
+			request(url)
 				.post('/profiles')
 				.send(profile)
 				.end(function(err, res) {
@@ -65,7 +69,7 @@
 				});
 		});
 		it('should return a 404 status code for an unknown account', function(done){
-			request('https://project-livec93b91f71eb7.rhcloud.com')
+			request(url)
 				.get('/profiles/ciccio')
 				.expect('Content-Type', /json/)	 			
 				.end(function(err,res) {
@@ -76,46 +80,46 @@
 					done();
 				});
 		});
-        it('should retrieve an existing account', function(done){
-    		request('https://project-livec93b91f71eb7.rhcloud.com')
-				.get('/profiles/vgheri')
-				.expect('Content-Type', /json/)	 			
-				.end(function(err,res) {
-					if (err) {
-						throw err;
-					}
-					res.should.have.status(200);	 
-                    res.body.should.have.property('_id');
-    				res.body.creationDate.should.not.equal(null);
-					done();
-				});
+		it('should retrieve an existing account', function(done){
+			request(url)
+			.get('/profiles/vgheri')
+			.expect('Content-Type', /json/)
+			.end(function(err,res) {
+				if (err) {
+					throw err;
+				}
+				res.should.have.status(200);
+									res.body.should.have.property('_id');
+					res.body.creationDate.should.not.equal(null);
+				done();
+			});
 		});
-        it('should return a 404 status code trying to update an unknown account', function(done){
-        	var body = {    			
+		it('should return a 404 status code trying to update an unknown account', function(done){
+			var body = {
 				firstName: 'Noone',
 				lastName: 'Unknown'
 			};
-            request('https://project-livec93b91f71eb7.rhcloud.com')
+			request(url)
 				.put('/profiles/ciccio')
 				.send(body)
-                .expect('Content-Type', /json/)
+				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
 					}
-					res.should.have.status(404);                     
+					res.should.have.status(404);
 					done();
 				});
 		});
-        it('should correctly update an existing account', function(done){
-            var body = {    			
+		it('should correctly update an existing account', function(done){
+			var body = {
 				firstName: 'JP',
 				lastName: 'Bermond'
 			};
-            request('https://project-livec93b91f71eb7.rhcloud.com')
+			request(url)
 				.put('/profiles/vgheri')
 				.send(body)
-                .expect('Content-Type', /json/)
+				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
@@ -128,15 +132,15 @@
 					done();
 				});
 		});
-        it('should return a 404 status code trying to delete an unknown account', function(done){
-            var body = {    			
+		it('should return a 404 status code trying to delete an unknown account', function(done){
+			var body = {
 				firstName: 'Noone',
 				lastName: 'Unknown'
 			};
-            request('https://project-livec93b91f71eb7.rhcloud.com')
+			request(url)
 				.del('/profiles/ciccio')
 				.send(body)
-                .expect('Content-Type', /json/)
+				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
@@ -145,29 +149,28 @@
 					done();
 				});
 		});
-        it('should correctly delete an existing account', function(done){            
-            request('https://project-livec93b91f71eb7.rhcloud.com')
+		it('should correctly delete an existing account', function(done){
+			request(url)
 				.del('/profiles/0CEEp')				                
 				.end(function(err,res) {
 					if (err) {
 						throw err;
 					}
 					res.should.have.status(204);
-                    res.body.should.equal(null);                    					
 				});
-            request('https://project-livec93b91f71eb7.rhcloud.com')
-                .get('/profiles/0CEEp')
-                .expect('Content-Type', /json/)
+			request(url)
+				.get('/profiles/0CEEp')
+				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
 					}
-					res.should.have.status(200);	 
-                    res.body.should.have.property('_id');
-                    res.body.isActive.should.equal(false);
-                    res.body.canLogin.should.equal(false);
+					res.should.have.status(200);
+					res.body.should.have.property('_id');
+					res.body.isActive.should.equal(false);
+					res.body.canLogin.should.equal(false);
 					done();
-				});                
+				});
 		});
 	});
  });
