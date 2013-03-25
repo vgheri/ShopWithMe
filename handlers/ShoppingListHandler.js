@@ -11,7 +11,7 @@
      this.createShoppingList = handleCreateShoppingListRequest;
      //this.createShoppingListFromTemplate = handleCreateShoppingListFromTemplateRequest;
      //this.getAccount = handleGetAccountRequest;
-     //this.updateAccount = handleUpdateAccountRequest;
+     this.updateShoppingList = handleUpdateShoppingListRequest;
      //this.deleteAccount = handleDeleteAccountRequest;     
  };
  
@@ -33,8 +33,8 @@
 				if (err) {             
 					winston.log('error', 'An error has occurred while processing a request to create a ' +
 					'shopping list from ' + req.connection.remoteAddress + 
-					'. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);            
-					res.json(400, {error: err.message});
+					'. Stack trace: ' + err.stack);            
+					res.json(400, { error: err.message });
 				}
 				else {        
 					winston.log('info', 'User Id ' + createdBy + ' has just created a ' + 
@@ -44,17 +44,70 @@
      });
  }
  
- function createShoppingList(creatorId, title, opts, callback) {
-     var shoppingList = new ShoppingList({
-         createdBy: creatorId,
-         title: title,
-         isShared: opts.isShared,
-         invitees: opts.invitees,
-         shoppingItems: opts.shoppingItems
-     });     
-     shoppingList.save(callback);     
- }
+  function handleUpdateShoppingListRequest(req, res) {
+		// Retrieve the shopping list id from the request
+		var id = req.params.id || null;
+		var parameters = req.body || null;
+		if (id) {
+			updateShoppingList(id, parameters, function(err, shoppingList) {
+				if (err) {
+					winston.log('error', 'An error has occurred while processing a request ' +
+					' to update shopping list with id ' + id + ' from ' + req.connection.remoteAddress +
+					'. Stack trace: ' + err.stack);
+					res.json(400, { error: err.message });
+				}
+				else {
+					if (shoppingList) {
+						winston.log('info', 'Shopping list ' + id + ' has been updated.' +
+						'Request from address ' + req.connection.remoteAddress + '.');
+						res.json(204, null);
+					}
+					else {
+						winston.log('info', 'Could not update shopping list ' + id + 
+						', no such id exists. Request from address ' + req.connection.remoteAddress + '.');
+						res.json(404, { error: "No shopping list found matching id " + id });
+					}
+				}
+			});
+		}
+  } 
   
- module.exports = ShoppingListHandler;
+  function createShoppingList(creatorId, title, opts, callback) {
+		var shoppingList = new ShoppingList({
+			createdBy: creatorId,
+			title: title,
+			isShared: opts.isShared,
+			invitees: opts.invitees,
+			shoppingItems: opts.shoppingItems
+		});
+		shoppingList.save(callback);
+  }
+  
+  function updateShoppingList(id, parameters, callback) {     
+		var query = { _id: id };
+		var options = {new: true};
+		var update = {};
+		// Setup field to update
+		if (parameters.isTemplate) {
+			update.isTemplate = parameters.isTemplate;
+		}
+		else if (parameters.title) {
+			update.title = parameters.title;
+		}
+		else if (parameters.isShared) {
+			update.isShared = parameters.isShared;
+		}
+		else if (parameters.invitees) {
+			update.invitees = parameters.invitees;
+		}
+		// Unexpected parameter
+		else {
+			var err = new Error('Unexpected update parameter: ' + update);
+			return callback(err, null);
+		}
+		ShoppingList.findOneAndUpdate(query, update, options, callback);
+  }
+  
+  module.exports = ShoppingListHandler;
  
  

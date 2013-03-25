@@ -220,7 +220,7 @@
 		it('should return error saving a shopping list without a title', 
 		function(done) {
 			var emptyShoppingList = {
-				userId: userId				            
+				userId: userId
 			};			
 			request(url)
 				.post('/api/lists')
@@ -232,7 +232,61 @@
 					}					
 					done();
 				});
-		});		
+		});
+		it('should update an existing shopping list, marking it as a template', 
+		function(done) {
+			var modifiedShoppingList = {								
+				isTemplate: true
+			};
+			// 
+			request(url)
+				.put('/api/lists/51505811d7aea01c70000004')
+				.send(modifiedShoppingList)
+				.expect(204)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}					
+					done();
+				});
+		});
+		it('should return error trying to update an existing shopping list with an unknown parameter', 
+		function(done) {
+			var modifiedShoppingList = {								
+				nonsense: true
+			};
+			// 
+			request(url)
+				.put('/api/lists/51505811d7aea01c70000004')
+				.send(modifiedShoppingList)
+				.expect(400)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}					
+					done();
+				});
+		}); /*
+		it('should save a new shopping list using another given list as a template', 
+		function(done) {
+			var emptyShoppingList = {
+				userId: userId,
+				title: 'Test list'             
+			};
+			request(url)
+				.post('/api/lists/')
+				.send(emptyShoppingList)
+				.expect(201)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}
+					res.body.should.have.property('_id');
+					res.body.creationDate.should.not.equal(null);
+					res.body.shoppingItems.should.have.length(0);
+					done();
+				});
+		});*/
   });
  });
  

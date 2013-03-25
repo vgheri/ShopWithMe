@@ -40,61 +40,59 @@
  
  /* TODO: I should update this function to check the identity of the origin.
   We don't want anyone being able to peek into the username collection */
- function handleGetAccountRequest(req, res) {
-   var username = req.params.username || null;
-   findAccountByUsername(username, function(err, account) {
-     if (err) {
-         winston.log('error', 'An error has occurred while processing a request to retrieve ' +
-            'account ' + username + ' from ' + req.connection.remoteAddress + 
-            '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
-         res.json(500, {error: err.message});
-     }
-     else {
-       if (account) {
-         winston.log('info', 'Account ' + username + ' has been retrieved.' + 
-                'Request from address ' + req.connection.remoteAddress + '.' +
-                'Timestamp: ' + new Date());  
-         res.json(200, account);
-       }
-       else {
-         winston.log('info', 'Could not retrieve account ' + username + ', no ' + 
-                'such username. Request from address ' + req.connection.remoteAddress + '.' +
-                'Timestamp: ' + new Date());  
-         res.json(404, {error: "No account found matching " + username});
-       }
-     }
-   });
- }
+	function handleGetAccountRequest(req, res) {
+	 var username = req.params.username || null;
+	 findAccountByUsername(username, function(err, account) {
+	   if (err) {
+	       winston.log('error', 'An error has occurred while processing a request to retrieve ' +
+	          'account ' + username + ' from ' + req.connection.remoteAddress + 
+	          '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
+	       res.json(500, {error: err.message});
+	   }
+	   else {
+	     if (account) {
+	       winston.log('info', 'Account ' + username + ' has been retrieved.' + 
+	              'Request from address ' + req.connection.remoteAddress + '.' +
+	              'Timestamp: ' + new Date());  
+	       res.json(200, account);
+	     }
+	     else {
+	       winston.log('info', 'Could not retrieve account ' + username + ', no ' + 
+	              'such username. Request from address ' + req.connection.remoteAddress + '.' +
+	              'Timestamp: ' + new Date());  
+	       res.json(404, {error: "No account found matching " + username});
+	     }
+	   }
+	 });
+	}
  
- function handleUpdateAccountRequest(req, res) {
-     // Retrieve the username from the request
-     var username = req.params.username || null;
-     var updatedAccount = req.body || null; 
-     updatedAccount.username = username;
-     
-     updateAccount(updatedAccount, function(err, account) {
-         if (err) {
-             winston.log('error', 'An error has occurred while processing a request to update ' +
-             'account ' + username + ' from ' + req.connection.remoteAddress + 
-             '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
-             res.json(400, {error: err.message});
-         } 
-         else {
-             if (account) {
-                 winston.log('info', 'Account ' + username + ' has been updated.' + 
-                 'Request from address ' + req.connection.remoteAddress + '.' +
-                 'Timestamp: ' + new Date()); 
-                 res.json(200, account);
-             }
-             else {
-                 winston.log('info', 'Could not update account ' + username + ', no ' + 
-                 'such username. Request from address ' + req.connection.remoteAddress + '.' +
-                 'Timestamp: ' + new Date());  
-                 res.json(404, {error: "No account found matching " + username});
-             }
-         }
-     });
- }
+  function handleUpdateAccountRequest(req, res) {
+  	// Retrieve the username from the request
+		var username = req.params.username || null;
+		var updatedAccount = req.body || null;
+  	updatedAccount.username = username;
+  
+  	updateAccount(updatedAccount, function(err, account) {
+  		if (err) {
+  			winston.log('error', 'An error has occurred while processing a request to update ' + 'account ' + username + ' from ' + req.connection.remoteAddress + '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
+  			res.json(400, {
+  				error: err.message
+  			});
+  		}
+  		else {
+  			if (account) {
+  				winston.log('info', 'Account ' + username + ' has been updated.' + 'Request from address ' + req.connection.remoteAddress + '.' + 'Timestamp: ' + new Date());
+  				res.json(200, account);
+  			}
+  			else {
+  				winston.log('info', 'Could not update account ' + username + ', no ' + 'such username. Request from address ' + req.connection.remoteAddress + '.' + 'Timestamp: ' + new Date());
+  				res.json(404, {
+  					error: "No account found matching " + username
+  				});
+  			}
+  		}
+  	});
+  }
  
  function handleDeleteAccountRequest(req, res) {          
      var username = req.params.username || null;
