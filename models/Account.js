@@ -29,4 +29,4 @@ var Account = mongoose.model('Account', accountSchema);
 
 //var acc = new Account({ username: 'test', password: 'blabla', firstName: 'valerio', lastName: 'gheri' });
 
-exports.Account = Account;
+module.exports = Account;

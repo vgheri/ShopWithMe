@@ -23,9 +23,9 @@
  	describe('Account', function() { 		
 		var url;
 		before(function(done) {
-			url = 'http://localhost:3000';
+			//url = 'http://localhost:3000';
 			// Cloud 9
-			//url = 'https://project-livec93b91f71eb7.rhcloud.com';
+			url = 'https://project-livec93b91f71eb7.rhcloud.com';
 			mongoose.connect("mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest");
 			//server.start();				
 			done();

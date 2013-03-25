@@ -23,14 +23,14 @@
      return this.invitees.some(function(current){
          return id === current.id;
      });     
- }
+ };
  
  // Checks if the shopping list contains this item name already 
  shoppingListSchema.methods.hasItem = function(name) {     
      return this.shoppingItems.some(function(current){
          return name === current.name;
      });     
- }
+ };
  
  shoppingListSchema.methods.toString = function() {
      var listExport = this.title + ' (' + this.lastUpdate + ')';
@@ -40,12 +40,11 @@
          listExport += '\n';
      });
      return listExport;     
- }
+ };
  
  var ShoppingList = mongoose.model('ShoppingList', shoppingListSchema);
  
- exports.ShoppingList  = ShoppingList;
- //exports.ShoppingListSchema = shoppingListSchema;
+ module.exports = ShoppingList; 
  
  
  

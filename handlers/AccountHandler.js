@@ -4,7 +4,7 @@
  * This class contains all the methods to handle Account related requests
  */ 
  
- var accountModule = require('../models/Account');
+ var Account = require('../models/Account');
  var winston = require('winston');
  
  var AccountHandler = function() {     
@@ -94,33 +94,6 @@
              }
          }
      });
-     
-     /* Old approach
-     // Retrieve the account associated with this username
-     findAccountByUsername(username, function(err, account) {
-        if (err) {
-            winston.log('error', 'An error has occurred while processing a request to update ' +
-            'account ' + username + ' from ' + req.connection.remoteAddress + 
-            '. Stack trace: ' + err.stack);
-            res.jsonp(400, {error: err.message});
-        }
-        else {
-           if (account) {
-             // Update the account with the info modified by the user
-             if (account.firstName !== updatedAccount.firstName) {
-                 account.firstName = updatedAccount.firstName;                 
-             }
-             if (account.lastName !== updatedAccount.lastName) {
-                 account.lastName = updatedAccount.lastName;
-             }
-             
-           }
-           else {
-             res.jsonp(404, {error: "No account found matching " + username});
-           }
-        }
-     });
-     */
  }
  
  function handleDeleteAccountRequest(req, res) {          
@@ -151,7 +124,7 @@
  } 
     
  function createAccount(username, password, firstName, lastName, callback) {
-     var account = new accountModule.Account({
+     var account = new Account({
          username: username, 
          password: password, 
          firstName: firstName, 
@@ -164,7 +137,7 @@
  }
  
  function findAccountByUsername(username, callback) {
-   accountModule.Account.findOne({username: username}, function(err, foundUsername) {
+    Account.findOne({username: username}, function(err, foundUsername) {
     return callback(err, foundUsername);
    });
  }
@@ -172,13 +145,13 @@
  function updateAccount(account, callback) {     
      var query = { username: account.username };
      var options = {new: true};
-     accountModule.Account.findOneAndUpdate(query, {firstName: account.firstName, lastName: account.lastName}, options, callback);
+     Account.findOneAndUpdate(query, {firstName: account.firstName, lastName: account.lastName}, options, callback);
  }
  
  function disableAccount(username, callback) {
      var query = { username: username };
      var options = {new: true};
-     accountModule.Account.findOneAndUpdate(query, {isActive: false, canLogin: false}, options, callback);
+     Account.findOneAndUpdate(query, {isActive: false, canLogin: false}, options, callback);
  }
 
  module.exports = AccountHandler;

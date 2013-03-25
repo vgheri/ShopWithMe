@@ -3,14 +3,14 @@
  */ 
  var mongoose = require('mongoose');
  var should = require("should");
- var shoppingListModule = require("../models/ShoppingList");
+ var ShoppingList = require("../models/ShoppingList");
  var assert = require("assert");
  
  describe('Shopping List', function(){
      var shoppingList;
      var wrongShoppingList;
      before(function(done) {
-         shoppingList = new shoppingListModule.ShoppingList({
+         shoppingList = new ShoppingList({
              createdBy: new mongoose.Types.ObjectId(),
              title: 'Test list',
              isShared: false             

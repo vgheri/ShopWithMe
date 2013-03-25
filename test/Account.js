@@ -3,13 +3,13 @@
  */ 
  
  var should = require("should");
- var accountModel = require("../models/Account");
+ var Account = require("../models/Account");
  var assert = require("assert");
  
  describe('Account', function() {
      var account;
      before(function(done) {
-         account = new accountModel.Account({
+         account = new Account({
              username: "vgheri", 
              password: "testpwd",
              firstName: "Valerio",
