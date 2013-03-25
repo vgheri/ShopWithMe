@@ -18,10 +18,10 @@
  // creation has been successful
  // On error should return status code 400 and the error message
  function handleCreateAccountRequest(req, res) {
-     var username = req.body.username;
-     var password = req.body.password;
-     var firstName = req.body.firstName;
-     var lastName = req.body.lastName;
+     var username = req.body.username || null;
+     var password = req.body.password || null;
+     var firstName = req.body.firstName || null;
+     var lastName = req.body.lastName || null;
      createAccount(username, password, firstName, lastName, function(err, account) {
          if (err) {             
             winston.log('error', 'An error has occurred while processing a request to create an ' +
@@ -41,13 +41,13 @@
  /* TODO: I should update this function to check the identity of the origin.
   We don't want anyone being able to peek into the username collection */
  function handleGetAccountRequest(req, res) {
-   var username = req.params.username;
+   var username = req.params.username || null;
    findAccountByUsername(username, function(err, account) {
      if (err) {
          winston.log('error', 'An error has occurred while processing a request to retrieve ' +
             'account ' + username + ' from ' + req.connection.remoteAddress + 
             '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
-         res.json(400, {error: err.message});
+         res.json(500, {error: err.message});
      }
      else {
        if (account) {
@@ -68,8 +68,8 @@
  
  function handleUpdateAccountRequest(req, res) {
      // Retrieve the username from the request
-     var username = req.params.username;
-     var updatedAccount = req.body; 
+     var username = req.params.username || null;
+     var updatedAccount = req.body || null; 
      updatedAccount.username = username;
      
      updateAccount(updatedAccount, function(err, account) {
@@ -97,13 +97,13 @@
  }
  
  function handleDeleteAccountRequest(req, res) {          
-     var username = req.params.username;
+     var username = req.params.username || null;
      disableAccount(username, function(err, account) {
          if (err) {
              winston.log('error', 'An error has occurred while processing a request to disable ' +
              'account ' + username + ' from ' + req.connection.remoteAddress + 
              '. Timestamp: ' + new Date() + '. Stack trace: ' + err.stack);
-             res.json(400, {error: err.message});
+             res.json(500, {error: err.message});
          } 
          else {
              if (account) {

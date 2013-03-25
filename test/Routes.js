@@ -20,16 +20,15 @@
  }
  
  describe('Routing', function() {
- 	describe('Account', function() { 		
-		var url;
-		before(function(done) {
-			//url = 'http://localhost:3000';
-			// Cloud 9
-			url = 'https://project-livec93b91f71eb7.rhcloud.com';
-			mongoose.connect("mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest");
-			//server.start();				
+ 	var url;
+  //url = 'http://localhost:3000';
+  // Cloud 9
+  url = 'https://project-livec93b91f71eb7.rhcloud.com';
+	before(function(done) {
+			mongoose.connect("mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest");							
 			done();
-		}); 
+	});
+	describe('Account', function() {
 		it('should return error trying to save duplicate username', function(done) {
 			var profile = {
 				username: 'vgheri',
@@ -38,13 +37,32 @@
 				lastName: 'Gheri'
 			};
 			request(url)
-				.post('/profiles')
+				.post('/api/profiles')
 				.send(profile)
 				.end(function(err, res) {
 					if (err) {
 						throw err;
 					}                    
 					res.should.have.status(400);	 				
+					done();
+				});
+		});
+		it('should return error trying to save account without username', function(done) {
+			var profile = {
+				//username: null,
+				password: 'test',
+				firstName: 'Valerio',
+				lastName: 'Gheri'
+			};
+			request(url)
+				.post('/api/profiles')
+				.send(profile)
+				.expect(400)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}                    
+					res.should.have.status(400);
 					done();
 				});
 		});
@@ -56,7 +74,7 @@
 				lastName: 'Gheri'
 			};
 			request(url)
-				.post('/profiles')
+				.post('/api/profiles')
 				.send(profile)
 				.end(function(err, res) {
 					if (err) {
@@ -70,7 +88,7 @@
 		});
 		it('should return a 404 status code for an unknown account', function(done){
 			request(url)
-				.get('/profiles/ciccio')
+				.get('/api/profiles/ciccio')
 				.expect('Content-Type', /json/)	 			
 				.end(function(err,res) {
 					if (err) {
@@ -82,7 +100,7 @@
 		});
 		it('should retrieve an existing account', function(done){
 			request(url)
-			.get('/profiles/vgheri')
+			.get('/api/profiles/vgheri')
 			.expect('Content-Type', /json/)
 			.end(function(err,res) {
 				if (err) {
@@ -100,7 +118,7 @@
 				lastName: 'Unknown'
 			};
 			request(url)
-				.put('/profiles/ciccio')
+				.put('/api/profiles/ciccio')
 				.send(body)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
@@ -117,7 +135,7 @@
 				lastName: 'Bermond'
 			};
 			request(url)
-				.put('/profiles/vgheri')
+				.put('/api/profiles/vgheri')
 				.send(body)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
@@ -138,7 +156,7 @@
 				lastName: 'Unknown'
 			};
 			request(url)
-				.del('/profiles/ciccio')
+				.del('/api/profiles/ciccio')
 				.send(body)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
@@ -151,7 +169,7 @@
 		});
 		it('should correctly delete an existing account', function(done){
 			request(url)
-				.del('/profiles/0CEEp')				                
+				.del('/api/profiles/0CEEp')				                
 				.end(function(err,res) {
 					if (err) {
 						throw err;
@@ -159,7 +177,7 @@
 					res.should.have.status(204);
 				});
 			request(url)
-				.get('/profiles/0CEEp')
+				.get('/api/profiles/0CEEp')
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
@@ -173,6 +191,49 @@
 				});
 		});
 	});
+	describe('Shopping List', function() {
+		var userId;
+		before(function(done) {
+			userId = new mongoose.Types.ObjectId();
+			done();
+		});
+		it('should save a new empty shopping list, along with a title', 
+		function(done) {
+			var emptyShoppingList = {
+				userId: userId,
+				title: 'Test list'             
+			};
+			request(url)
+				.post('/api/lists')
+				.send(emptyShoppingList)
+				.expect(201)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}
+					res.body.should.have.property('_id');
+					res.body.creationDate.should.not.equal(null);
+					res.body.shoppingItems.should.have.length(0);
+					done();
+				});
+		});
+		it('should return error saving a shopping list without a title', 
+		function(done) {
+			var emptyShoppingList = {
+				userId: userId				            
+			};			
+			request(url)
+				.post('/api/lists')
+				.send(emptyShoppingList)
+				.expect(400)
+				.end(function(err, res) {					
+					if (err) {	
+						return done(err);
+					}					
+					done();
+				});
+		});		
+  });
  });
  
  

@@ -12,7 +12,7 @@
      lastUpdate: {type: Date, default: Date.now},
      isActive: {type: Boolean, default: true},
      title: {type: String, required: true},
-     isShared: {type: Boolean, required: true},
+     isShared: {type: Boolean, default: false},
      isTemplate: {type: Boolean, default: false},
      invitees: {type: [mongoose.Schema.ObjectId], default: []},
      shoppingItems: {type: [{name: {type: String, required: true}, quantity: String}], default: []}
@@ -21,7 +21,7 @@
  // Checks if the list of invitees contains this invitee Id already
  shoppingListSchema.methods.hasInvitee = function(id) {     
      return this.invitees.some(function(current){
-         return id === current.id;
+         return id === current._id;
      });     
  };
  
