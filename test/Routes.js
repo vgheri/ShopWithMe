@@ -196,17 +196,17 @@
 	});
 	describe('Shopping List', function() {
 		var userId;
+		var shoppingListId;
 		before(function(done) {
 			userId = new mongoose.Types.ObjectId('5149d6d382d09b6722000002');
 			done();
 		});
-		it('should save a new empty shopping list and should add it to the lists of the user vgheri', 
-		function(done) {
+		it('should save a new empty shopping list', 
+		function(done) {			
 			var emptyShoppingList = {
 				userId: userId,
 				title: 'Test list'             
-			};
-			
+			};			
 			request(url)
 				.post('/api/lists')
 				.send(emptyShoppingList)
@@ -216,9 +216,14 @@
 						throw err;
 					}
 					res.body.should.have.property('_id');
+					shoppingListId = res.body._id;
 					res.body.creationDate.should.not.equal(null);
 					res.body.shoppingItems.should.have.length(0);
-				});			
+					done();
+				});
+		});
+		it('should have added the newly created list to the lists of the user vgheri', 
+		function(done) {
 			request(url)
 				.get('/api/profiles/vgheri')
 				.expect('Content-Type', /json/)
@@ -228,6 +233,7 @@
 					}					
 					res.should.have.status(200);					
 					res.body.shoppingLists.should.not.have.length(0);
+					res.body.shoppingLists.should.includeEql(shoppingListId);
 					done();
 				});
 		});
@@ -255,7 +261,7 @@
 				invitees: [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()]
 			};			 
 			request(url)
-				.put('/api/lists/51505811d7aea01c70000004')
+				.put('/api/lists/' + shoppingListId)
 				.send(modifiedShoppingList)
 				.expect(200)
 				.end(function(err, res) {
@@ -282,6 +288,21 @@
 					done();
 				});
 		}); /*
+		it('should get all active templates for username vgheri', 
+		function(done) {			
+			request(url)
+				.get('/api/lists/' + userId)
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+					res.body.should.not.have.length(0);
+					done();
+				});
+		}); */
+		/*
 		it('should save a new shopping list using another given list as a template', 
 		function(done) {
 			var emptyShoppingList = {
