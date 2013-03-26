@@ -7,6 +7,9 @@
  var request = require('supertest'); 
  var server = require('../Server.js'); 
  var mongoose = require('mongoose');
+ var winston = require('winston');
+ 
+
  
  function makeid()
  {
@@ -194,15 +197,16 @@
 	describe('Shopping List', function() {
 		var userId;
 		before(function(done) {
-			userId = new mongoose.Types.ObjectId();
+			userId = new mongoose.Types.ObjectId('5149d6d382d09b6722000002');
 			done();
 		});
-		it('should save a new empty shopping list, along with a title', 
+		it('should save a new empty shopping list and should add it to the lists of the user vgheri', 
 		function(done) {
 			var emptyShoppingList = {
 				userId: userId,
 				title: 'Test list'             
 			};
+			
 			request(url)
 				.post('/api/lists')
 				.send(emptyShoppingList)
@@ -214,6 +218,16 @@
 					res.body.should.have.property('_id');
 					res.body.creationDate.should.not.equal(null);
 					res.body.shoppingItems.should.have.length(0);
+				});			
+			request(url)
+				.get('/api/profiles/vgheri')
+				.expect('Content-Type', /json/)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}					
+					res.should.have.status(200);					
+					res.body.shoppingLists.should.not.have.length(0);
 					done();
 				});
 		});
@@ -233,7 +247,7 @@
 					done();
 				});
 		});
-		it('should update an existing shopping list, marking it as a template', 
+		it('should update an existing shopping list, marking it as a template, shared, adding invitees and updating lastUpdate timestamp', 
 		function(done) {
 			var modifiedShoppingList = {								
 				isTemplate: true,
@@ -243,7 +257,7 @@
 			request(url)
 				.put('/api/lists/51505811d7aea01c70000004')
 				.send(modifiedShoppingList)
-				.expect(204)
+				.expect(200)
 				.end(function(err, res) {
 					if (err) {
 						throw err;

@@ -23,3 +23,4 @@ mongoose.connect(config.db.mongodb);
 console.log("Successfully connected to MongoDB. Starting web server...");
 server.start();
 console.log("Successfully started web server. Waiting for incoming connections...");
+

@@ -1,0 +1,2 @@
+Refactor methods into repositories for avoiding duplicates and for testability.
+See createShoppingList in handlers/ShoppingListHandler.js

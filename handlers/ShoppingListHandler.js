@@ -5,6 +5,7 @@
  */
 
 var ShoppingList = require('../models/ShoppingList');
+var Account = require('../models/Account');
 var winston = require('winston');
 
 var ShoppingListHandler = function() {
@@ -63,7 +64,7 @@ function handleUpdateShoppingListRequest(req, res) {
 				if (shoppingList) {
 					winston.log('info', 'Shopping list ' + id + ' has been updated.' + 
 					'Request from address ' + req.connection.remoteAddress + '.');
-					res.json(204, null);
+					res.json(200, shoppingList);
 				}
 				else {
 					winston.log('info', 'Could not update shopping list ' + id + 
@@ -85,7 +86,25 @@ function createShoppingList(creatorId, title, opts, callback) {
 		invitees: opts.invitees,
 		shoppingItems: opts.shoppingItems
 	});
-	shoppingList.save(callback);
+	//shoppingList.save(callback);
+	shoppingList.save(function(err, savedShoppingList) {		
+		if (err) {
+			return callback(err, null);
+		}
+		var query = {
+			_id: creatorId
+		};		
+		Account.findOne(query, function(err, profile) {
+			if (err) {
+				return callback(err, null);
+			}	
+			// Let's add this new shopping list to the list contained in the profile
+			profile.shoppingLists.addToSet(savedShoppingList._id);
+			profile.save(function(err, profile) {
+				return callback(err, savedShoppingList);
+			});
+		});
+	});	
 }
 
 function updateShoppingList(id, parameters, callback) {	
@@ -110,10 +129,12 @@ function updateShoppingList(id, parameters, callback) {
 		update.invitees = parameters.invitees;
 	}
 	
+	update.lastUpdate = new Date();
+	
 	for (var key in parameters) {
 		if (key !== 'isTemplate' && key && 'title' && key !== 'isShared' && key !== 'invitees') {
 			// Unexpected parameters, raise error
-			var err = new Error('Unexpected update parameter: ' + update);
+			var err = new Error('Unexpected parameter: ' + key);
 			return callback(err, null);
 		}
 	}

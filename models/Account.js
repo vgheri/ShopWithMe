@@ -16,7 +16,8 @@ var accountSchema = mongoose.Schema({
 	isActive: {type: Boolean, default: true},
 	// If confirmation email system is implemented,  
 	// this can be set to false
-	canLogin: {type: Boolean, default: true},     
+	canLogin: {type: Boolean, default: true},  
+	// Treated as a set
 	shoppingLists: {type: [mongoose.Schema.ObjectId], default: []}
 });
  
