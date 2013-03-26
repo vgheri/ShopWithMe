@@ -88,7 +88,7 @@ function createShoppingList(creatorId, title, opts, callback) {
 	shoppingList.save(callback);
 }
 
-function updateShoppingList(id, parameters, callback) {
+function updateShoppingList(id, parameters, callback) {	
 	var query = {
 		_id: id
 	};
@@ -100,20 +100,24 @@ function updateShoppingList(id, parameters, callback) {
 	if (parameters.isTemplate) {
 		update.isTemplate = parameters.isTemplate;
 	}
-	else if (parameters.title) {
+	if (parameters.title) {
 		update.title = parameters.title;
 	}
-	else if (parameters.isShared) {
+	if (parameters.isShared) {
 		update.isShared = parameters.isShared;
 	}
-	else if (parameters.invitees) {
+	if (parameters.invitees) {
 		update.invitees = parameters.invitees;
 	}
-	// Unexpected parameter
-	else {
-		var err = new Error('Unexpected update parameter: ' + update);
-		return callback(err, null);
+	
+	for (var key in parameters) {
+		if (key !== 'isTemplate' && key && 'title' && key !== 'isShared' && key !== 'invitees') {
+			// Unexpected parameters, raise error
+			var err = new Error('Unexpected update parameter: ' + update);
+			return callback(err, null);
+		}
 	}
+	
 	ShoppingList.findOneAndUpdate(query, update, options, callback);
 }
 
