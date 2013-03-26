@@ -11,7 +11,7 @@ var winston = require('winston');
 var ShoppingListHandler = function() {
 	this.createShoppingList = handleCreateShoppingListRequest;
 	//this.createShoppingListFromTemplate = handleCreateShoppingListFromTemplateRequest;
-	//this.getAccount = handleGetAccountRequest;
+	this.getShoppingLists = handleGetShoppingListsRequest;
 	this.updateShoppingList = handleUpdateShoppingListRequest;
 	//this.deleteAccount = handleDeleteAccountRequest;     
 };
@@ -46,6 +46,16 @@ function handleCreateShoppingListRequest(req, res) {
 	});
 }
 
+function handleGetShoppingListsRequest(req, res) {
+	var userId = req.params.userId || null;
+	var query = req.query;
+	// If we have a query, it means we don't simply want to retrieve the 
+	// lists for the homepage
+	if (query && query.isTemplate) {		
+		handleGetTemplateListsForUserRequest(req, res, userId);
+	}
+}
+
 function handleUpdateShoppingListRequest(req, res) {
 	// Retrieve the shopping list id from the request
 	var id = req.params.id || null;
@@ -77,6 +87,43 @@ function handleUpdateShoppingListRequest(req, res) {
 		});
 	}
 }
+
+// Returns 404 both for a not existing user and for an empty result set
+function handleGetTemplateListsForUserRequest(req, res, userId) {
+	findTemplatesListsForUser(userId, function(err, templates) {
+		if (err) {
+			winston.log('error', 'An error has occurred while processing a request to '
+			+ 'retrieve template lists for user ' + userId + ' from ' + req.connection.remoteAddress + 
+			'. Stack trace: ' + err.stack);
+			res.json(500, {
+				error: err.message
+			});
+		}
+		else {			
+			if (templates && templates.length > 0) {
+				winston.log('info', 'Successfully retrieved templates for user ' + userId 
+				+ '. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(200, templates);						
+			}
+			else {
+				winston.log('info', 'No template list for user ' + userId 
+				+ '. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(404, templates);	
+			}
+		}
+	});
+}
+
+function findTemplatesListsForUser(userId, callback) {
+	// userId must be the creator
+	// the list must be marked as a template
+	// The list must be active
+	var query = { createdBy: userId, isTemplate: true, isActive: true };
+	ShoppingList.find(query, function(err, templates) {
+		callback(err, templates);
+	});
+}
+
 
 function createShoppingList(creatorId, title, opts, callback) {
 	var shoppingList = new ShoppingList({
@@ -132,7 +179,7 @@ function updateShoppingList(id, parameters, callback) {
 	update.lastUpdate = new Date();
 	
 	for (var key in parameters) {
-		if (key !== 'isTemplate' && key && 'title' && key !== 'isShared' && key !== 'invitees') {
+		if (key !== 'isTemplate' && key !== 'title' && key !== 'isShared' && key !== 'invitees') {
 			// Unexpected parameters, raise error
 			var err = new Error('Unexpected parameter: ' + key);
 			return callback(err, null);

@@ -278,7 +278,7 @@
 			};
 			// 
 			request(url)
-				.put('/api/lists/51505811d7aea01c70000004')
+				.put('/api/lists/' + shoppingListId)
 				.send(modifiedShoppingList)
 				.expect(400)
 				.end(function(err, res) {
@@ -287,21 +287,65 @@
 					}					
 					done();
 				});
-		}); /*
-		it('should get all active templates for username vgheri', 
+		});
+		it('should return 404 trying to update a not existing shopping list', 
+		function(done) {
+			var modifiedShoppingList = {				
+				title: 'Test list'
+			};
+			// 
+			request(url)
+				.put('/api/lists/507f191e810c19729de860ea')
+				.send(modifiedShoppingList)
+				.expect(404)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}					
+					done();
+				});
+		});
+		it('should get all active templates for an existing user', 
 		function(done) {			
 			request(url)
-				.get('/api/lists/' + userId)
+				.get('/api/lists/' + userId + '?isTemplate=1')
 				.expect('Content-Type', /json/)
 				.expect(200)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
 					}
-					res.body.should.not.have.length(0);
+					res.body.should.not.have.length(0);					
 					done();
 				});
-		}); */
+		});
+		it('should return 404 when trying to retrieve templates for a not existing user', 
+		function(done) {			
+			request(url)
+				.get('/api/lists/507f191e810c19729de860ea?isTemplate=1')
+				.expect('Content-Type', /json/)
+				.expect(404)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+					console.log(res.body);
+					done();
+				});
+		});
+		it('should return 404 when trying to retrieve templates for an existing user who has no templates', 
+		function(done) {			
+			request(url)
+				.get('/api/lists/5149da06dea6ba6419000005?isTemplate=1')
+				.expect('Content-Type', /json/)
+				.expect(404)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}					
+					done();
+				});
+		});
 		/*
 		it('should save a new shopping list using another given list as a template', 
 		function(done) {
