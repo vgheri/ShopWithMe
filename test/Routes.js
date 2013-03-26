@@ -236,9 +236,10 @@
 		it('should update an existing shopping list, marking it as a template', 
 		function(done) {
 			var modifiedShoppingList = {								
-				isTemplate: true
-			};
-			// 
+				isTemplate: true,
+				isShared: true,
+				invitees: [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()]
+			};			 
 			request(url)
 				.put('/api/lists/51505811d7aea01c70000004')
 				.send(modifiedShoppingList)
