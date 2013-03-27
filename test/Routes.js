@@ -23,7 +23,7 @@
  }
  
  describe('Routing', function() {
- 	var url;
+	var url;
   //url = 'http://localhost:3000';
   // Cloud 9
   url = 'https://project-livec93b91f71eb7.rhcloud.com';
@@ -328,8 +328,7 @@
 				.end(function(err,res) {
 					if (err) {
 						throw err;
-					}
-					console.log(res.body);
+					}					
 					done();
 				});
 		});
@@ -345,28 +344,27 @@
 					}					
 					done();
 				});
-		});
-		/*
+		});		
 		it('should save a new shopping list using another given list as a template', 
 		function(done) {
-			var emptyShoppingList = {
-				userId: userId,
-				title: 'Test list'             
-			};
 			request(url)
-				.post('/api/lists/')
-				.send(emptyShoppingList)
+				.post('/api/lists/5151aa984427051731000006')
+				.send({ userId: userId })
 				.expect(201)
 				.end(function(err, res) {
 					if (err) {
 						throw err;
 					}
 					res.body.should.have.property('_id');
+					res.body.should.have.property('title', 'Template Test list');
 					res.body.creationDate.should.not.equal(null);
 					res.body.shoppingItems.should.have.length(0);
+					res.body.invitees.should.not.have.length(0);
+					res.body.isTemplate.should.equal(false);
+					res.body.isShared.should.equal(true);
 					done();
 				});
-		});*/
+		});
   });
  });
  

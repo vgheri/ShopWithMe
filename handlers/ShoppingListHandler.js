@@ -9,8 +9,7 @@ var Account = require('../models/Account');
 var winston = require('winston');
 
 var ShoppingListHandler = function() {
-	this.createShoppingList = handleCreateShoppingListRequest;
-	//this.createShoppingListFromTemplate = handleCreateShoppingListFromTemplateRequest;
+	this.createShoppingList = handleCreateShoppingListRequest;	
 	this.getShoppingLists = handleGetShoppingListsRequest;
 	this.updateShoppingList = handleUpdateShoppingListRequest;
 	//this.deleteAccount = handleDeleteAccountRequest;     
@@ -21,30 +20,78 @@ var ShoppingListHandler = function() {
 // On error should return status code 400 and the error message
 function handleCreateShoppingListRequest(req, res) {
 	var createdBy = req.body.userId || null;
-	var title = req.body.title || null;
-	// createShoppingList handles creation of all lists, both empty ones
-	// and pre-populated ones
-	var opts = {
-		isShared: false,
-		invitees: [],
-		shoppingItems: []
-	};
-	createShoppingList(createdBy, title, opts, function(err, shoppingList) {
-		console.log("callback called");
-		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to create a ' 
-			+ 'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-			res.json(400, {
-				error: err.message
-			});
-		}
-		else {
-			winston.log('info', 'User Id ' + createdBy + ' has just created a ' 
-			+ 'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
-			res.json(201, shoppingList);
-		}
-	});
+	var opts = {};
+	var title;
+	if (req.params.id) {
+		// It means we want to create a list from a template
+		ShoppingList.findOne({ _id: req.params.id }, function(err, template) { 
+			if (err) {
+				winston.log('error', 'An error has occurred while processing a request to create a ' 
+				+ 'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+				res.json(400, {
+					error: err.message
+				});
+			}
+			else if (template) {
+				title = template.title;
+				opts = {					
+					isShared: template.isShared,
+					invitees: template.invitees,
+					shoppingItems: template.shoppingItems
+				};
+				createShoppingList(createdBy, title, opts, function(err, shoppingList) {	
+					if (err) {
+						winston.log('error', 'An error has occurred while processing a request to create a ' 
+						+ 'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+						res.json(400, {
+							error: err.message
+						});
+					}
+					else {
+						winston.log('info', 'User Id ' + createdBy + ' has just created a ' 
+						+ 'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
+						res.json(201, shoppingList);
+					}
+				});				
+			}
+			else {
+				// No template could be found. Return 404
+				winston.log('info', 'User id ' + createdBy + ' tried to create a new ' +  
+				'shopping list from template with id ' + req.params.id + ' but no such id could be found.' +   
+				' Remote address: ' + req.connection.remoteAddress);
+				res.json(404, {
+					error: "Template not found"
+				});
+			}
+		}); 
+	} // We want to create an empty shopping list
+	else {
+		title = req.body.title || null;	
+		// createShoppingList handles creation of all lists, both empty ones
+		// and pre-populated ones
+		opts = {
+			isShared: false,
+			invitees: [],
+			shoppingItems: []
+		};
+		createShoppingList(createdBy, title, opts, function(err, shoppingList) {			
+			if (err) {
+				winston.log('error', 'An error has occurred while processing a request to create a ' 
+				+ 'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+				res.json(400, {
+					error: err.message
+				});
+			}
+			else {
+				winston.log('info', 'User Id ' + createdBy + ' has just created a ' 
+				+ 'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(201, shoppingList);
+			}
+		});		
+	}	
 }
+
+
 
 function handleGetShoppingListsRequest(req, res) {
 	var userId = req.params.userId || null;
@@ -123,7 +170,6 @@ function findTemplatesListsForUser(userId, callback) {
 		callback(err, templates);
 	});
 }
-
 
 function createShoppingList(creatorId, title, opts, callback) {
 	var shoppingList = new ShoppingList({
