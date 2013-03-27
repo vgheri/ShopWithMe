@@ -8,7 +8,7 @@
  var server = require('../Server.js'); 
  var mongoose = require('mongoose');
  var winston = require('winston');
- 
+ var ShoppingList = require('../models/ShoppingList');
 
  
  function makeid()
@@ -362,6 +362,55 @@
 					res.body.invitees.should.not.have.length(0);
 					res.body.isTemplate.should.equal(false);
 					res.body.isShared.should.equal(true);
+					done();
+				});
+		});
+		it('should return a list of all the shopping lists (not template) that the ' + 
+			'user vgheri recentrly created or that have been shared with him', 
+		function(done) {
+			request(url)
+				.get('/api/lists/' + userId)
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+					res.body.should.not.have.length(0);					
+					/*for (var i = 0; i < res.body.length; i++) {											
+						res.body[i].isTemplate.should.equal(false);
+						res.body[i].createdBy.toString().should.equal(userId.toString());
+					}*/
+					res.body.forEach(function(list) {
+						list.isTemplate.should.equal(false);
+						list.createdBy.toString().should.equal(userId.toString());
+					});
+					done();
+				});
+		});
+		it('should return 404 trying to get shopping lists for a not existing user', 
+		function(done) {
+			request(url)
+				.get('/api/lists/507f191e810c19729de860ea')
+				.expect('Content-Type', /json/)
+				.expect(404)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}					
+					done();
+				});
+		});
+		it('should return 404 trying to get shopping lists for an existing user with no saved lists', 
+		function(done) {
+			request(url)
+				.get('/api/lists/5149e05ef9566c132b000003')
+				.expect('Content-Type', /json/)
+				.expect(404)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}					
 					done();
 				});
 		});

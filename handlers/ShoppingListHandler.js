@@ -96,10 +96,12 @@ function handleCreateShoppingListRequest(req, res) {
 function handleGetShoppingListsRequest(req, res) {
 	var userId = req.params.userId || null;
 	var query = req.query;
-	// If we have a query, it means we don't simply want to retrieve the 
-	// lists for the homepage
+	// If we have a query, it means we want to retrieve templates
 	if (query && query.isTemplate) {		
 		handleGetTemplateListsForUserRequest(req, res, userId);
+	} // 
+	else {
+		handleGetListsForUserRequest(req, res, userId);
 	}
 }
 
@@ -160,6 +162,62 @@ function handleGetTemplateListsForUserRequest(req, res, userId) {
 		}
 	});
 }
+
+// Returns 404 for a not existing user and for an empty result set
+function handleGetListsForUserRequest(req, res, userId) {
+	// fetch the user		
+	Account.findById(userId, function(err, account) {
+		if (err) {
+			winston.log('error', 'An error has occurred while processing a request to '
+			+ 'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress + 
+			'. Stack trace: ' + err.stack);
+			res.json(500, {
+				error: err.message
+			});
+		}
+		else {
+			if (account) {
+				// get the list of shopping list IDs for the user
+				var listIDs = account.shoppingLists;
+				// then do a find on the shoppingLists collection to look for the IDs retrieved 
+				// filtered by isActive = true and isTemplate = false
+				var query = {
+					"_id": { $in: listIDs },
+					isActive: true,
+					isTemplate: false
+				};
+				ShoppingList.find(query, function(err, lists) {
+					if (err) {
+						winston.log('error', 'An error has occurred while processing a request to '
+						+ 'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress + 
+						'. Stack trace: ' + err.stack);
+						res.json(500, {
+							error: err.message
+						});
+					}
+					else {
+						if (lists && lists.length > 0) {
+							winston.log('info', 'Successfully retrieved shopping lists for user ' + userId 
+							+ '. Request from address ' + req.connection.remoteAddress + '.');
+							res.send(200, lists);
+						}
+						else {
+							winston.log('info', 'No shopping list for user ' + userId 
+							+ '. Request from address ' + req.connection.remoteAddress + '.');
+							res.json(404, null);	
+						}
+					}
+				});
+			}
+			else {				
+				winston.log('info', 'No shopping list for user ' + userId 
+				+ '. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(404, null);
+			}
+		}
+	});
+}
+
 
 function findTemplatesListsForUser(userId, callback) {
 	// userId must be the creator

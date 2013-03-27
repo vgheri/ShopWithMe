@@ -5,3 +5,6 @@
   contains ObjectIds and for these users we still do not have them as they are not
   yet registered! Maybe I could put the username into invitees and the username 
   could be the same as the one chosen in Facebook... think abou it!
+  
+3) Re-engineer code using Q or async.js... right now I have pyramid of doom and
+ callback hell, plus code repetition of if (err) {} else { ... }
