@@ -26,7 +26,8 @@
 	var url;
   //url = 'http://localhost:3000';
   // Cloud 9
-  url = 'https://project-livec93b91f71eb7.rhcloud.com';
+  //url = 'https://project-livec93b91f71eb7.rhcloud.com';
+  url = 'http://shopwithme.vgheri.c9.io';
 	before(function(done) {
 			mongoose.connect("mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest");							
 			done();
@@ -146,10 +147,10 @@
 						throw err;
 					}
 					res.should.have.status(200);
-                    res.body.should.have.property('_id');
-                    res.body.firstName.should.equal('JP');
-                    res.body.lastName.should.equal('Bermond');                    
-                    res.body.creationDate.should.not.equal(null);
+          res.body.should.have.property('_id');
+          res.body.firstName.should.equal('JP');
+          res.body.lastName.should.equal('Bermond');                    
+          res.body.creationDate.should.not.equal(null);
 					done();
 				});
 		});
@@ -376,11 +377,7 @@
 					if (err) {
 						throw err;
 					}
-					res.body.should.not.have.length(0);					
-					/*for (var i = 0; i < res.body.length; i++) {											
-						res.body[i].isTemplate.should.equal(false);
-						res.body[i].createdBy.toString().should.equal(userId.toString());
-					}*/
+					res.body.should.not.have.length(0);
 					res.body.forEach(function(list) {
 						list.isTemplate.should.equal(false);
 						list.createdBy.toString().should.equal(userId.toString());
@@ -411,6 +408,36 @@
 					if (err) {
 						throw err;
 					}					
+					done();
+				});
+		});
+		it('should return a 404 status code trying to delete an unknown shopping list', function(done){			
+			request(url)
+				.del('/api/lists/507f191e810c19729de860ea')
+				.expect(404)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}					
+					done();
+				});
+		});
+		it('should correctly delete an existing shopping list and return 204', function(done){
+			request(url)
+				.del('/api/lists/' + shoppingListId)
+				.expect(204)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+				});
+			request(url)
+				.get('/api/lists/' + shoppingListId)
+				.expect(404)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
 					done();
 				});
 		});

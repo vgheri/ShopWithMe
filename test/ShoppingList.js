@@ -14,24 +14,14 @@ describe('Shopping List', function() {
 			createdBy: new mongoose.Types.ObjectId(),
 			title: 'Test list',
 			isShared: false
-		});
-		//console.log(shoppingList.createdBy);
-		shoppingList.invitees.push(new mongoose.Types.ObjectId());
-		//console.log(shoppingList.invitees[0]);
+		});		
+		shoppingList.invitees.push(new mongoose.Types.ObjectId());		
 		shoppingList.shoppingItems.push({
 			name: 'bread',
 			quantity: '500g'
 		});
-		/*wrongShoppingList = new shoppingListModule.ShoppingList({
-             title: 'Test list',
-             isShared: false 
-         });*/
 		done();
 	});
-
-	/*it('should not have a null created by property', function() {
-         wrongShoppingList.should.not.have.property('createdBy', null);
-     });*/
 	it('should have a valid created by property', function() {
 		shoppingList.should.not.have.property('createdBy', null);
 		shoppingList.should.not.have.property('createdBy', '');

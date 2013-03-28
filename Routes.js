@@ -14,6 +14,7 @@ function setup(app, handlers) {
 	app.post('/api/lists/:id', handlers.list.createShoppingList);
 	app.put('/api/lists/:id', handlers.list.updateShoppingList);
 	app.get('/api/lists/:userId', handlers.list.getShoppingLists);
+	app.del('/api/lists/:id', handlers.list.deleteShoppingList);
 }
 
 exports.setup = setup;

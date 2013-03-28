@@ -12,7 +12,7 @@ var ShoppingListHandler = function() {
 	this.createShoppingList = handleCreateShoppingListRequest;	
 	this.getShoppingLists = handleGetShoppingListsRequest;
 	this.updateShoppingList = handleUpdateShoppingListRequest;
-	//this.deleteAccount = handleDeleteAccountRequest;     
+	this.deleteShoppingList = handleDeleteShoppingListRequest;     
 };
 
 // On success should return status code 201 to notify the client the account
@@ -91,8 +91,6 @@ function handleCreateShoppingListRequest(req, res) {
 	}	
 }
 
-
-
 function handleGetShoppingListsRequest(req, res) {
 	var userId = req.params.userId || null;
 	var query = req.query;
@@ -135,6 +133,37 @@ function handleUpdateShoppingListRequest(req, res) {
 			}
 		});
 	}
+}
+
+function handleDeleteShoppingListRequest(req, res) {
+	var listId = req.params.id || null;
+	deleteShoppingList(listId, function(err, shoppingList) {
+		if (err) {
+			winston.log('error', 'An error has occurred while deleting shopping list ' 
+			+ listId + ' from ' + req.connection.remoteAddress + 
+			'. Stack trace: ' + err.stack);
+			res.json(500, {
+				error: err.message
+			});
+		}
+		else {
+			console.log('Shopping list: ' + shoppingList);
+			winston.info('log', 'In delete: ' + shoppingList);
+			if (shoppingList) {
+				winston.log('info', 'Shopping list ' + listId + ' has been deleted.' + 
+				'Request from address ' + req.connection.remoteAddress + '.');
+				// No need to return anything. We just deleted the list 
+				res.json(204, null);
+			}
+			else {
+				winston.log('info', 'Could not delete shopping list ' + listId + ', no ' 
+				+ 'such id exists. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(404, {
+					error: "No shopping list found matching " + listId
+				});
+			}
+		}
+	});
 }
 
 // Returns 404 both for a not existing user and for an empty result set
@@ -291,6 +320,22 @@ function updateShoppingList(id, parameters, callback) {
 	}
 	
 	ShoppingList.findOneAndUpdate(query, update, options, callback);
+}
+
+function deleteShoppingList(id, callback) {
+	ShoppingList.findById(id, function(err, shoppingList) {
+		if (err) {
+			callback(err, null);
+		}
+		else {
+			if (shoppingList) {
+				shoppingList.remove(callback(null, shoppingList));
+			}
+			else {
+				callback(null, null);
+			}
+		}
+	})
 }
 
 module.exports = ShoppingListHandler;

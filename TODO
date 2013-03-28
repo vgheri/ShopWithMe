@@ -1,10 +1,17 @@
 1) Refactor methods into repositories for avoiding duplicates and for testability.
   See createShoppingList in handlers/ShoppingListHandler.js
 
-2) Solve the problem about sharing with persons not yet registered: invitees
+2) Re-engineer code using Q or async.js... right now I have pyramid of doom and
+ callback hell, plus code repetition of if (err) {} else { ... }
+
+3) Refactor routes  as per http://www.slideshare.net/domenicdenicola/creating-truly-res-tful-apis
+
+4) Account Search and delete: GET, DELETE -> /profiles/:username should only work 
+ for the current user , otherwise return 403 FORBIDDEN
+	
+5) Use Grunt to automate build and test process
+
+6) Solve the problem about sharing with persons not yet registered: invitees
   contains ObjectIds and for these users we still do not have them as they are not
   yet registered! Maybe I could put the username into invitees and the username 
   could be the same as the one chosen in Facebook... think abou it!
-  
-3) Re-engineer code using Q or async.js... right now I have pyramid of doom and
- callback hell, plus code repetition of if (err) {} else { ... }
