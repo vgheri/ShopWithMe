@@ -12,8 +12,8 @@
 //
 var express = require('express');
 var app = express();
-var AccountHandler = require('./handlers/AccountHandler');
-var ShoppingListHandler = require('./handlers/ShoppingListHandler');
+var AccountController = require('./controllers/AccountController');
+var ShoppingListController = require('./controllers/ShoppingListController');
 var routes = require('./Routes');
 var fs = require('fs');
 
@@ -37,8 +37,8 @@ app.configure('production', function(){
 });
 
 var handlers = {
-  account: new AccountHandler(),
-  list: new ShoppingListHandler() 
+  account: new AccountController(),
+  list: new ShoppingListController() 
 };
 
 function start() {
