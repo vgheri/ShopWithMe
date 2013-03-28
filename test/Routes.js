@@ -93,12 +93,11 @@
 		it('should return a 404 status code for an unknown account', function(done){
 			request(url)
 				.get('/api/profiles/ciccio')
-				.expect('Content-Type', /json/)	 			
+				.expect(404)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
-					}
-					res.should.have.status(404);	 				
+					}					
 					done();
 				});
 		});
@@ -106,13 +105,13 @@
 			request(url)
 			.get('/api/profiles/vgheri')
 			.expect('Content-Type', /json/)
+			.expect(200)
 			.end(function(err,res) {
 				if (err) {
 					throw err;
-				}
-				res.should.have.status(200);
-									res.body.should.have.property('_id');
-					res.body.creationDate.should.not.equal(null);
+				}				
+				res.body.should.have.property('_id');
+				res.body.creationDate.should.not.equal(null);
 				done();
 			});
 		});
@@ -122,7 +121,7 @@
 				lastName: 'Unknown'
 			};
 			request(url)
-				.put('/api/profiles/ciccio')
+				.put('/api/profiles/7878eb45dea6ba6419000005')
 				.send(body)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
@@ -135,21 +134,21 @@
 		});
 		it('should correctly update an existing account', function(done){
 			var body = {
-				firstName: 'JP',
-				lastName: 'Bermond'
+				firstName: 'Valerio',
+				lastName: 'Gheri'
 			};
 			request(url)
-				.put('/api/profiles/vgheri')
+				.put('/api/profiles/5149d6d382d09b6722000002')
 				.send(body)
 				.expect('Content-Type', /json/)
+				.expect(200)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
-					}
-					res.should.have.status(200);
+					}					
           res.body.should.have.property('_id');
-          res.body.firstName.should.equal('JP');
-          res.body.lastName.should.equal('Bermond');                    
+          res.body.firstName.should.equal('Valerio');
+          res.body.lastName.should.equal('Gheri');                    
           res.body.creationDate.should.not.equal(null);
 					done();
 				});
@@ -160,7 +159,7 @@
 				lastName: 'Unknown'
 			};
 			request(url)
-				.del('/api/profiles/ciccio')
+				.del('/api/profiles/7878e6d382d09b6722000002')
 				.send(body)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
@@ -173,21 +172,21 @@
 		});
 		it('should correctly delete an existing account', function(done){
 			request(url)
-				.del('/api/profiles/0CEEp')				                
+				.del('/api/profiles/5149da06dea6ba6419000005')
+				.expect(204)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
 					}
-					res.should.have.status(204);
 				});
 			request(url)
 				.get('/api/profiles/0CEEp')
 				.expect('Content-Type', /json/)
+				.expect(200)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
-					}
-					res.should.have.status(200);
+					}					
 					res.body.should.have.property('_id');
 					res.body.isActive.should.equal(false);
 					res.body.canLogin.should.equal(false);

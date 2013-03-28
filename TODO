@@ -15,3 +15,10 @@
   contains ObjectIds and for these users we still do not have them as they are not
   yet registered! Maybe I could put the username into invitees and the username 
   could be the same as the one chosen in Facebook... think abou it!
+  
+7) Refactor GET/PUT/DELETE for /api/profiles... I need to change into 
+GET/PUT/DELETE /api/profiles/me?ACCESS_TOKEN=... 
+see http://developer.sixreps.com/docs/api/users
+the token is the one provided by facebook... With that I need to go to 
+Facebook, retrieve the email and/or user id, and do a find on my db! 
+
