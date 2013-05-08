@@ -4,7 +4,7 @@
  * Entry point
  */
 
-var config = require('./Config');
+var config = require('./Config-debug');
 var winston = require('winston');
 var mongoose = require('mongoose');
 var server = require('./Server');
@@ -12,11 +12,11 @@ var server = require('./Server');
 // We will log normal api operations into api.log
 console.log("starting logger...");
 winston.add(winston.transports.File, {
-	filename: 'logs/api.log'
+	filename: config.logger.api
 });
 // We will log all uncaught exceptions into exceptions.log
 winston.handleExceptions(new winston.transports.File({
-	filename: 'logs/exceptions.log'
+	filename: config.logger.exception
 }));
 console.log("logger started. Connecting to MongoDB...");
 mongoose.connect(config.db.mongodb);
