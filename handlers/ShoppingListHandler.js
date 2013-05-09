@@ -26,8 +26,8 @@ function handleCreateShoppingListRequest(req, res) {
 		// It means we want to create a list from a template
 		ShoppingList.findOne({ _id: req.params.id }, function(err, template) { 
 			if (err) {
-				winston.log('error', 'An error has occurred while processing a request to create a ' 
-				+ 'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+				winston.log('error', 'An error has occurred while processing a request to create a ' +
+					'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 				res.json(400, {
 					error: err.message
 				});
@@ -41,15 +41,15 @@ function handleCreateShoppingListRequest(req, res) {
 				};
 				createShoppingList(createdBy, title, opts, function(err, shoppingList) {	
 					if (err) {
-						winston.log('error', 'An error has occurred while processing a request to create a ' 
-						+ 'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+						winston.log('error', 'An error has occurred while processing a request to create a ' +
+							'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 						res.json(400, {
 							error: err.message
 						});
 					}
 					else {
-						winston.log('info', 'User Id ' + createdBy + ' has just created a ' 
-						+ 'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
+						winston.log('info', 'User Id ' + createdBy + ' has just created a ' +
+							'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
 						res.json(201, shoppingList);
 					}
 				});				
@@ -76,15 +76,15 @@ function handleCreateShoppingListRequest(req, res) {
 		};
 		createShoppingList(createdBy, title, opts, function(err, shoppingList) {			
 			if (err) {
-				winston.log('error', 'An error has occurred while processing a request to create a ' 
-				+ 'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+				winston.log('error', 'An error has occurred while processing a request to create a ' +
+					'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 				res.json(400, {
 					error: err.message
 				});
 			}
 			else {
-				winston.log('info', 'User Id ' + createdBy + ' has just created a ' 
-				+ 'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
+				winston.log('info', 'User Id ' + createdBy + ' has just created a ' +
+					'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(201, shoppingList);
 			}
 		});		
@@ -139,9 +139,9 @@ function handleDeleteShoppingListRequest(req, res) {
 	var listId = req.params.id || null;
 	deleteShoppingList(listId, function(err, shoppingList) {
 		if (err) {
-			winston.log('error', 'An error has occurred while deleting shopping list ' 
-			+ listId + ' from ' + req.connection.remoteAddress + 
-			'. Stack trace: ' + err.stack);
+			winston.log('error', 'An error has occurred while deleting shopping list ' + listId +
+				' from ' + req.connection.remoteAddress +
+				'. Stack trace: ' + err.stack);
 			res.json(500, {
 				error: err.message
 			});
@@ -156,8 +156,8 @@ function handleDeleteShoppingListRequest(req, res) {
 				res.json(204, null);
 			}
 			else {
-				winston.log('info', 'Could not delete shopping list ' + listId + ', no ' 
-				+ 'such id exists. Request from address ' + req.connection.remoteAddress + '.');
+				winston.log('info', 'Could not delete shopping list ' + listId + ', no ' +
+					'such id exists. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(404, {
 					error: "No shopping list found matching " + listId
 				});
@@ -170,22 +170,22 @@ function handleDeleteShoppingListRequest(req, res) {
 function handleGetTemplateListsForUserRequest(req, res, userId) {
 	findTemplatesListsForUser(userId, function(err, templates) {
 		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to '
-			+ 'retrieve template lists for user ' + userId + ' from ' + req.connection.remoteAddress + 
-			'. Stack trace: ' + err.stack);
+			winston.log('error', 'An error has occurred while processing a request to ' +
+				'retrieve template lists for user ' + userId + ' from ' + req.connection.remoteAddress +
+				'. Stack trace: ' + err.stack);
 			res.json(500, {
 				error: err.message
 			});
 		}
 		else {			
 			if (templates && templates.length > 0) {
-				winston.log('info', 'Successfully retrieved templates for user ' + userId 
-				+ '. Request from address ' + req.connection.remoteAddress + '.');
+				winston.log('info', 'Successfully retrieved templates for user ' + userId +
+					'. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(200, templates);						
 			}
 			else {
-				winston.log('info', 'No template list for user ' + userId 
-				+ '. Request from address ' + req.connection.remoteAddress + '.');
+				winston.log('info', 'No template list for user ' + userId +
+					'. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(404, templates);	
 			}
 		}
@@ -197,9 +197,9 @@ function handleGetListsForUserRequest(req, res, userId) {
 	// fetch the user		
 	Account.findById(userId, function(err, account) {
 		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to '
-			+ 'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress + 
-			'. Stack trace: ' + err.stack);
+			winston.log('error', 'An error has occurred while processing a request to ' +
+				'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress +
+				'. Stack trace: ' + err.stack);
 			res.json(500, {
 				error: err.message
 			});
@@ -217,30 +217,30 @@ function handleGetListsForUserRequest(req, res, userId) {
 				};
 				ShoppingList.find(query, function(err, lists) {
 					if (err) {
-						winston.log('error', 'An error has occurred while processing a request to '
-						+ 'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress + 
-						'. Stack trace: ' + err.stack);
+						winston.log('error', 'An error has occurred while processing a request to ' +
+							'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress +
+							'. Stack trace: ' + err.stack);
 						res.json(500, {
 							error: err.message
 						});
 					}
 					else {
 						if (lists && lists.length > 0) {
-							winston.log('info', 'Successfully retrieved shopping lists for user ' + userId 
-							+ '. Request from address ' + req.connection.remoteAddress + '.');
+							winston.log('info', 'Successfully retrieved shopping lists for user ' + userId +
+								'. Request from address ' + req.connection.remoteAddress + '.');
 							res.send(200, lists);
 						}
 						else {
-							winston.log('info', 'No shopping list for user ' + userId 
-							+ '. Request from address ' + req.connection.remoteAddress + '.');
+							winston.log('info', 'No shopping list for user ' + userId +
+								'. Request from address ' + req.connection.remoteAddress + '.');
 							res.json(404, null);	
 						}
 					}
 				});
 			}
 			else {				
-				winston.log('info', 'No shopping list for user ' + userId 
-				+ '. Request from address ' + req.connection.remoteAddress + '.');
+				winston.log('info', 'No shopping list for user ' + userId +
+					'. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(404, null);
 			}
 		}
@@ -292,7 +292,7 @@ function updateShoppingList(id, parameters, callback) {
 		_id: id
 	};
 	var options = {
-		new: true
+		'new': true
 	};
 	var update = {};
 	// Setup field to update
@@ -335,7 +335,7 @@ function deleteShoppingList(id, callback) {
 				callback(null, null);
 			}
 		}
-	})
+	});
 }
 
 module.exports = ShoppingListHandler;

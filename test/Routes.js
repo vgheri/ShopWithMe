@@ -24,10 +24,10 @@
  
  describe('Routing', function() {
 	var url;
-  //url = 'http://localhost:3000';
+  url = 'http://localhost:3000';
   // Cloud 9
   //url = 'https://project-livec93b91f71eb7.rhcloud.com';
-  url = 'http://shopwithme.vgheri.c9.io';
+  //url = 'http://shopwithme.vgheri.c9.io';
 	before(function(done) {
 			mongoose.connect("mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest");							
 			done();
@@ -47,7 +47,7 @@
 					if (err) {
 						throw err;
 					}                    
-					res.should.have.status(400);	 				
+					res.should.have.status(400);
 					done();
 				});
 		});
@@ -93,12 +93,12 @@
 		it('should return a 404 status code for an unknown account', function(done){
 			request(url)
 				.get('/api/profiles/ciccio')
-				.expect('Content-Type', /json/)	 			
+				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
 					}
-					res.should.have.status(404);	 				
+					res.should.have.status(404);
 					done();
 				});
 		});
@@ -173,7 +173,7 @@
 		});
 		it('should correctly delete an existing account', function(done){
 			request(url)
-				.del('/api/profiles/0CEEp')				                
+				.del('/api/profiles/0CEEp')
 				.end(function(err,res) {
 					if (err) {
 						throw err;

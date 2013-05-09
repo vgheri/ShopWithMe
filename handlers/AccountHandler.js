@@ -24,15 +24,15 @@ function handleCreateAccountRequest(req, res) {
 	var lastName = req.body.lastName || null;
 	createAccount(username, password, firstName, lastName, function(err, account) {
 		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to create an ' 
-			+ 'account from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+			winston.log('error', 'An error has occurred while processing a request to create an ' +
+				'account from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 			res.json(400, {
 				error: err.message
 			});
 		}
 		else {
-			winston.log('info', 'Account ' + username + ' has been created.' 
-			+ 'Request from address ' + req.connection.remoteAddress + '.');
+			winston.log('info', 'Account ' + username + ' has been created.' +
+				'Request from address ' + req.connection.remoteAddress + '.');
 			res.json(201, account);
 		}
 	});
@@ -44,17 +44,17 @@ function handleGetAccountRequest(req, res) {
 	var username = req.params.username || null;
 	findAccountByUsername(username, function(err, account) {
 		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to retrieve '
-			+ 'account ' + username + ' from ' + req.connection.remoteAddress + 
-			'. Stack trace: ' + err.stack);
+			winston.log('error', 'An error has occurred while processing a request to retrieve ' +
+				'account ' + username + ' from ' + req.connection.remoteAddress +
+				'. Stack trace: ' + err.stack);
 			res.json(500, {
 				error: err.message
 			});
 		}
 		else {
 			if (account) {
-				winston.log('info', 'Account ' + username + ' has been retrieved.' 
-				+ 'Request from address ' + req.connection.remoteAddress + '.');
+				winston.log('info', 'Account ' + username + ' has been retrieved.' +
+					'Request from address ' + req.connection.remoteAddress + '.');
 				res.json(200, account);
 			}
 			else {
@@ -76,9 +76,9 @@ function handleUpdateAccountRequest(req, res) {
 
 	updateAccount(updatedAccount, function(err, account) {
 		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to update ' 
-			+ 'account ' + username + ' from ' + req.connection.remoteAddress + 
-			'. Stack trace: ' + err.stack);
+			winston.log('error', 'An error has occurred while processing a request to update ' +
+				'account ' + username + ' from ' + req.connection.remoteAddress +
+				'. Stack trace: ' + err.stack);
 			res.json(400, {
 				error: err.message
 			});
@@ -104,9 +104,9 @@ function handleDeleteAccountRequest(req, res) {
 	var username = req.params.username || null;
 	disableAccount(username, function(err, account) {
 		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to disable ' 
-			+ 'account ' + username + ' from ' + req.connection.remoteAddress + 
-			'. Stack trace: ' + err.stack);
+			winston.log('error', 'An error has occurred while processing a request to disable ' +
+				'account ' + username + ' from ' + req.connection.remoteAddress +
+				'. Stack trace: ' + err.stack);
 			res.json(500, {
 				error: err.message
 			});
@@ -119,8 +119,8 @@ function handleDeleteAccountRequest(req, res) {
 				res.json(204, null);
 			}
 			else {
-				winston.log('info', 'Could not disable account ' + username + ', no ' 
-				+ 'such username. Request from address ' + req.connection.remoteAddress + '.');
+				winston.log('info', 'Could not disable account ' + username + ', no ' +
+					'such username. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(404, {
 					error: "No account found matching " + username
 				});
@@ -155,7 +155,7 @@ function updateAccount(account, callback) {
 		username: account.username
 	};
 	var options = {
-		new: true
+		'new': true
 	};
 	Account.findOneAndUpdate(query, {
 		firstName: account.firstName,
@@ -168,7 +168,7 @@ function disableAccount(username, callback) {
 		username: username
 	};
 	var options = {
-		new: true
+		'new': true
 	};
 	Account.findOneAndUpdate(query, {
 		isActive: false,

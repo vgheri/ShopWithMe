@@ -11,7 +11,12 @@
     "devDependencies": {
         "supertest": "0.5.x",
         "mocha": "1.8.x",
-        "should": "1.2.x"        
+        "should": "1.2.x",
+				"grunt": "~0.4.0",
+				"grunt-contrib-jshint": "~0.1.0",
+				"grunt-contrib-concat": "~0.1.1",
+				"grunt-contrib-uglify": "~0.1.0",
+				"grunt-contrib-watch": "~0.1.4"
     },
     "scripts": {
         "test": "make test"

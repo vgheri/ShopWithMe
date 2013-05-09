@@ -8,14 +8,14 @@ var mongoose = require('mongoose');
  
 var shoppingListSchema = mongoose.Schema({     
 	createdBy: {type: mongoose.Schema.ObjectId, required: true, index: true},
-	creationDate: {type: Date, default: Date.now},
-	lastUpdate: {type: Date, default: Date.now},
-	isActive: {type: Boolean, default: true},
+	creationDate: {type: Date, 'default': Date.now},
+	lastUpdate: {type: Date, 'default': Date.now},
+	isActive: {type: Boolean, 'default': true},
 	title: {type: String, required: true},
-	isShared: {type: Boolean, default: false},
-	isTemplate: {type: Boolean, default: false},
-	invitees: {type: [mongoose.Schema.ObjectId], default: []},
-	shoppingItems: {type: [{name: {type: String, required: true}, quantity: String}], default: []}
+	isShared: {type: Boolean, 'default': false},
+	isTemplate: {type: Boolean, 'default': false},
+	invitees: {type: [mongoose.Schema.ObjectId], 'default': []},
+	shoppingItems: {type: [{name: {type: String, required: true}, quantity: String}], 'default': []}
 });
 
 // Checks if the list of invitees contains this invitee Id already

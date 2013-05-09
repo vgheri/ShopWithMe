@@ -11,14 +11,14 @@ var accountSchema = mongoose.Schema({
 	password: {type: String, required: true},
 	firstName: {type: String, required: true},
 	lastName: {type: String, required: true},
-	creationDate: {type: Date, default: Date.now},
-	lastLogin: {type: Date, default: null},
-	isActive: {type: Boolean, default: true},
+	creationDate: {type: Date, 'default': Date.now},
+	lastLogin: {type: Date, 'default': null},
+	isActive: {type: Boolean, 'default': true},
 	// If confirmation email system is implemented,  
 	// this can be set to false
-	canLogin: {type: Boolean, default: true},  
+	canLogin: {type: Boolean, 'default': true},
 	// Treated as a set
-	shoppingLists: {type: [mongoose.Schema.ObjectId], default: []}
+	shoppingLists: {type: [mongoose.Schema.ObjectId], 'default': []}
 });
  
 accountSchema.methods.getFullName = function() {
