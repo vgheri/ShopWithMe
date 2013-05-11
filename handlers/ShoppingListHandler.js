@@ -7,6 +7,8 @@
 var ShoppingList = require('../models/ShoppingList');
 var Account = require('../models/Account');
 var winston = require('winston');
+var ShoppingListRepository = require('../repositories/shoppingListRepository');
+var logger = require('../utils/logger.js');
 
 var ShoppingListHandler = function() {
 	this.createShoppingList = handleCreateShoppingListRequest;	
@@ -17,53 +19,62 @@ var ShoppingListHandler = function() {
 
 // On success should return status code 201 to notify the client the account
 // creation has been successful
-// On error should return status code 400 and the error message
+// On error should return status code 500 and the error message
 function handleCreateShoppingListRequest(req, res) {
 	var createdBy = req.body.userId || null;
 	var opts = {};
 	var title;
+	var shoppingListRepository = new ShoppingListRepository();
 	if (req.params.id) {
 		// It means we want to create a list from a template
-		ShoppingList.findOne({ _id: req.params.id }, function(err, template) { 
-			if (err) {
-				winston.log('error', 'An error has occurred while processing a request to create a ' +
+		// Find the template list by id
+		shoppingListRepository.findById(req.params.id)
+		.then(
+			function(template) {
+				if (template) {
+					// Ok template found. Am I authorised to use this template?
+					// TODO!
+					title = template.title;
+					opts = {
+						isShared: template.isShared,
+						invitees: template.invitees,
+						shoppingItems: template.shoppingItems
+					};
+					shoppingListRepository.createShoppingList(createdBy, title, opts)
+						.then(function(shoppingList) {
+							if (shoppingList) {
+								logger.log('info', 'User Id ' + createdBy + ' has just created a ' +
+									'new shopping list from template with id ' + req.params.id + ' . Request from address ' +
+									req.connection.remoteAddress + '.');
+								res.json(201, shoppingList);
+							}
+							else {
+								// No user could be found. Return 404
+								logger.log('info', 'User id ' + createdBy + ' could not be found.' +
+									' Remote address: ' + req.connection.remoteAddress);
+								res.json(404, {
+									error: "User not found"
+								});
+							}
+						});
+				}
+				else {
+					// No template could be found. Return 404
+					logger.log('info', 'User id ' + createdBy + ' tried to create a new ' +
+						'shopping list from template with id ' + req.params.id + ' but no such id could be found.' +
+						' Remote address: ' + req.connection.remoteAddress);
+					res.json(404, {
+						error: "Template not found"
+					});
+				}
+			})
+			.fail(function (err) {
+				logger.log('error', 'An error has occurred while processing a request to create a ' +
 					'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 				res.json(400, {
 					error: err.message
 				});
-			}
-			else if (template) {
-				title = template.title;
-				opts = {					
-					isShared: template.isShared,
-					invitees: template.invitees,
-					shoppingItems: template.shoppingItems
-				};
-				createShoppingList(createdBy, title, opts, function(err, shoppingList) {	
-					if (err) {
-						winston.log('error', 'An error has occurred while processing a request to create a ' +
-							'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-						res.json(400, {
-							error: err.message
-						});
-					}
-					else {
-						winston.log('info', 'User Id ' + createdBy + ' has just created a ' +
-							'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
-						res.json(201, shoppingList);
-					}
-				});				
-			}
-			else {
-				// No template could be found. Return 404
-				winston.log('info', 'User id ' + createdBy + ' tried to create a new ' +  
-				'shopping list from template with id ' + req.params.id + ' but no such id could be found.' +   
-				' Remote address: ' + req.connection.remoteAddress);
-				res.json(404, {
-					error: "Template not found"
-				});
-			}
-		}); 
+			});
 	} // We want to create an empty shopping list
 	else {
 		title = req.body.title || null;	
@@ -74,20 +85,31 @@ function handleCreateShoppingListRequest(req, res) {
 			invitees: [],
 			shoppingItems: []
 		};
-		createShoppingList(createdBy, title, opts, function(err, shoppingList) {			
-			if (err) {
-				winston.log('error', 'An error has occurred while processing a request to create a ' +
+		shoppingListRepository.createShoppingList(createdBy, title, opts)
+		.then(
+				function (shoppingList) {
+					if (shoppingList) {
+						logger.log('info', 'User Id ' + createdBy + ' has just created a ' +
+							'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
+						res.json(201, shoppingList);
+					}
+					else {
+						// No user could be found. Return 404
+						logger.log('info', 'User id ' + createdBy + ' could not be found.' +
+							' Remote address: ' + req.connection.remoteAddress);
+						res.json(404, {
+							error: "User not found"
+						});
+					}
+				}
+			)
+			.fail(function (err) {
+				logger.log('error', 'An error has occurred while processing a request to create a ' +
 					'shopping list from ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 				res.json(400, {
 					error: err.message
 				});
-			}
-			else {
-				winston.log('info', 'User Id ' + createdBy + ' has just created a ' +
-					'new empty shopping list. Request from address ' + req.connection.remoteAddress + '.');
-				res.json(201, shoppingList);
-			}
-		});		
+			});
 	}	
 }
 
@@ -247,7 +269,6 @@ function handleGetListsForUserRequest(req, res, userId) {
 	});
 }
 
-
 function findTemplatesListsForUser(userId, callback) {
 	// userId must be the creator
 	// the list must be marked as a template
@@ -258,6 +279,7 @@ function findTemplatesListsForUser(userId, callback) {
 	});
 }
 
+/*
 function createShoppingList(creatorId, title, opts, callback) {
 	var shoppingList = new ShoppingList({
 		createdBy: creatorId,
@@ -286,6 +308,7 @@ function createShoppingList(creatorId, title, opts, callback) {
 		});
 	});	
 }
+*/
 
 function updateShoppingList(id, parameters, callback) {	
 	var query = {
