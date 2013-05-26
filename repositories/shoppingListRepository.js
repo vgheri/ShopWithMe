@@ -8,7 +8,7 @@
 
 var ShoppingList = require('../models/ShoppingList');
 var AccountRepository = require('../repositories/accountRepository');
-var logger = require('../utils/logger.js');
+var logger = require('../utils/logger');
 var Q = require('q');
 
 function ShoppingListRepository() {
@@ -47,10 +47,13 @@ function createShoppingList(creatorId, title, opts) {
 					if (err) {
 						deferred.reject(new Error(err));
 					}
-					return accountRepository.addShoppingListToUser(profile, savedShoppingList._id)
-					.then(function(profile) {
-						deferred.resolve(savedShoppingList);
-					});
+					else {
+						var id = savedShoppingList._id;
+						return accountRepository.addShoppingListToUser(profile, id)
+						.then(function(profile) {
+							deferred.resolve(savedShoppingList);
+						});
+					}
 				});
 			}
 			else {

@@ -8,7 +8,7 @@ var ShoppingList = require('../models/ShoppingList');
 var Account = require('../models/Account');
 var winston = require('winston');
 var ShoppingListRepository = require('../repositories/shoppingListRepository');
-var logger = require('../utils/logger.js');
+var logger = require('../utils/logger');
 
 var ShoppingListHandler = function() {
 	this.createShoppingList = handleCreateShoppingListRequest;	
