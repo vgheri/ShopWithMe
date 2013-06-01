@@ -411,7 +411,7 @@
 					done();
 				});
 		});
-		it('should return a 404 status code trying to delete an unknown shopping list', function(done){			
+		/*it('should return a 404 status code trying to delete an unknown shopping list', function(done){
 			request(url)
 				.del('/api/lists/507f191e810c19729de860ea')
 				.expect(404)
@@ -421,7 +421,7 @@
 					}					
 					done();
 				});
-		});
+		});*/
 		it('should correctly delete an existing shopping list and return 204', function(done){
 			request(url)
 				.del('/api/lists/' + shoppingListId)
@@ -430,6 +430,7 @@
 					if (err) {
 						throw err;
 					}
+					done();
 				});
 			request(url)
 				.get('/api/lists/' + shoppingListId)

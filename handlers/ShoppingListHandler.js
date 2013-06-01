@@ -8,6 +8,7 @@ var ShoppingList = require('../models/ShoppingList');
 var Account = require('../models/Account');
 var winston = require('winston');
 var ShoppingListRepository = require('../repositories/shoppingListRepository');
+var AccountRepository = require('../repositories/accountRepository');
 var logger = require('../utils/logger');
 
 var ShoppingListHandler = function() {
@@ -129,29 +130,39 @@ function handleUpdateShoppingListRequest(req, res) {
 	// Retrieve the shopping list id from the request
 	var id = req.params.id || null;
 	var parameters = req.body || null;
+	var shoppingListRepository = new ShoppingListRepository();
 	if (id) {
-		updateShoppingList(id, parameters, function(err, shoppingList) {
-			if (err) {
-				winston.log('error', 'An error has occurred while processing a request ' +
-				' to update shopping list with id ' + id + ' from ' +
-				req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-				res.json(400, {
-					error: err.message
-				});
-			}
-			else {
+		shoppingListRepository.updateShoppingList(id, parameters)
+		.then(function(shoppingList) {
 				if (shoppingList) {
-					winston.log('info', 'Shopping list ' + id + ' has been updated.' + 
-					'Request from address ' + req.connection.remoteAddress + '.');
+					logger.log('info', 'Shopping list ' + id + ' has been updated.' +
+						'Request from address ' + req.connection.remoteAddress + '.');
 					res.json(200, shoppingList);
 				}
 				else {
-					winston.log('info', 'Could not update shopping list ' + id + 
-					', no such id exists. Request from address ' + req.connection.remoteAddress + '.');
+					logger.log('info', 'Could not update shopping list ' + id +
+						', no such id exists. Request from address ' + req.connection.remoteAddress + '.');
 					res.json(404, {
 						error: "No shopping list found matching id " + id
 					});
 				}
+			},
+		function(err) {
+			if (err.isBadRequest) {
+				res.json(400, {
+					error: err.message
+				});
+				winston.log('error', 'An error has occurred while processing a request ' +
+					' to update shopping list with id ' + id + ' from ' +
+					req.connection.remoteAddress + '. Message: ' + err.message);
+			}
+			else {
+				res.json(500, {
+					error: err.message
+				});
+				winston.log('error', 'An error has occurred while processing a request ' +
+					' to update shopping list with id ' + id + ' from ' +
+					req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 			}
 		});
 	}
@@ -159,206 +170,100 @@ function handleUpdateShoppingListRequest(req, res) {
 
 function handleDeleteShoppingListRequest(req, res) {
 	var listId = req.params.id || null;
-	deleteShoppingList(listId, function(err, shoppingList) {
-		if (err) {
-			winston.log('error', 'An error has occurred while deleting shopping list ' + listId +
-				' from ' + req.connection.remoteAddress +
-				'. Stack trace: ' + err.stack);
-			res.json(500, {
-				error: err.message
-			});
-		}
-		else {
-			console.log('Shopping list: ' + shoppingList);
-			winston.info('log', 'In delete: ' + shoppingList);
+	var shoppingListRepository = new ShoppingListRepository();
+	shoppingListRepository.deleteShoppingList(listId)
+	.then(function(shoppingList) {
 			if (shoppingList) {
-				winston.log('info', 'Shopping list ' + listId + ' has been deleted.' + 
-				'Request from address ' + req.connection.remoteAddress + '.');
-				// No need to return anything. We just deleted the list 
+				logger.log('info', 'Shopping list ' + listId + ' has been deleted.' +
+					'Request from address ' + req.connection.remoteAddress + '.');
+				// No need to return anything. We just deleted the list
 				res.json(204, null);
 			}
 			else {
-				winston.log('info', 'Could not delete shopping list ' + listId + ', no ' +
+				logger.log('info', 'Could not delete shopping list ' + listId + ', no ' +
 					'such id exists. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(404, {
 					error: "No shopping list found matching " + listId
 				});
 			}
-		}
+		},
+	function (err) {
+		logger.log('error', 'An error has occurred while deleting shopping list ' + listId +
+			' from ' + req.connection.remoteAddress +
+			'. Stack trace: ' + err.stack);
+		res.json(500, {
+			error: err.message
+		});
 	});
 }
 
 // Returns 404 both for a not existing user and for an empty result set
 function handleGetTemplateListsForUserRequest(req, res, userId) {
-	findTemplatesListsForUser(userId, function(err, templates) {
-		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to ' +
+	var shoppingListRepository = new ShoppingListRepository();
+	shoppingListRepository.findTemplatesListsForUser(userId)
+	.then(
+		function(templates) {
+			if (templates && templates.length > 0) {
+				logger.log('info', 'Successfully retrieved templates for user ' + userId +
+					'. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(200, templates);
+			}
+			else {
+				logger.log('info', 'No template list for user ' + userId +
+					'. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(404, templates);
+			}
+		},
+		function(err) {
+			logger.log('error', 'An error has occurred while processing a request to ' +
 				'retrieve template lists for user ' + userId + ' from ' + req.connection.remoteAddress +
 				'. Stack trace: ' + err.stack);
 			res.json(500, {
 				error: err.message
 			});
 		}
-		else {			
-			if (templates && templates.length > 0) {
-				winston.log('info', 'Successfully retrieved templates for user ' + userId +
-					'. Request from address ' + req.connection.remoteAddress + '.');
-				res.json(200, templates);						
-			}
-			else {
-				winston.log('info', 'No template list for user ' + userId +
-					'. Request from address ' + req.connection.remoteAddress + '.');
-				res.json(404, templates);	
-			}
-		}
-	});
+	);
 }
 
 // Returns 404 for a not existing user and for an empty result set
 function handleGetListsForUserRequest(req, res, userId) {
-	// fetch the user		
-	Account.findById(userId, function(err, account) {
-		if (err) {
-			winston.log('error', 'An error has occurred while processing a request to ' +
-				'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress +
-				'. Stack trace: ' + err.stack);
-			res.json(500, {
-				error: err.message
-			});
-		}
-		else {
+	var accountRepository = new AccountRepository();
+	var shoppingListRepository = new ShoppingListRepository();
+	accountRepository.findById(userId)
+	.then(function(account) {
 			if (account) {
 				// get the list of shopping list IDs for the user
 				var listIDs = account.shoppingLists;
-				// then do a find on the shoppingLists collection to look for the IDs retrieved 
+				// then do a find on the shoppingLists collection to look for the IDs retrieved
 				// filtered by isActive = true and isTemplate = false
 				var query = {
 					"_id": { $in: listIDs },
 					isActive: true,
 					isTemplate: false
 				};
-				ShoppingList.find(query, function(err, lists) {
-					if (err) {
-						winston.log('error', 'An error has occurred while processing a request to ' +
-							'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress +
-							'. Stack trace: ' + err.stack);
-						res.json(500, {
-							error: err.message
-						});
-					}
-					else {
-						if (lists && lists.length > 0) {
-							winston.log('info', 'Successfully retrieved shopping lists for user ' + userId +
-								'. Request from address ' + req.connection.remoteAddress + '.');
-							res.send(200, lists);
-						}
-						else {
-							winston.log('info', 'No shopping list for user ' + userId +
-								'. Request from address ' + req.connection.remoteAddress + '.');
-							res.json(404, null);	
-						}
-					}
-				});
+				return shoppingListRepository.find(query);
 			}
-			else {				
-				winston.log('info', 'No shopping list for user ' + userId +
+		})
+	.then(function(lists) {
+			if (lists && lists.length > 0) {
+				logger.log('info', 'Successfully retrieved shopping lists for user ' + userId +
+					'. Request from address ' + req.connection.remoteAddress + '.');
+				res.send(200, lists);
+			}
+			else {
+				logger.log('info', 'No shopping list for user ' + userId +
 					'. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(404, null);
 			}
-		}
-	});
-}
-
-function findTemplatesListsForUser(userId, callback) {
-	// userId must be the creator
-	// the list must be marked as a template
-	// The list must be active
-	var query = { createdBy: userId, isTemplate: true, isActive: true };
-	ShoppingList.find(query, function(err, templates) {
-		callback(err, templates);
-	});
-}
-
-/*
-function createShoppingList(creatorId, title, opts, callback) {
-	var shoppingList = new ShoppingList({
-		createdBy: creatorId,
-		title: title,
-		isShared: opts.isShared,
-		invitees: opts.invitees,
-		shoppingItems: opts.shoppingItems
-	});
-	//shoppingList.save(callback);
-	shoppingList.save(function(err, savedShoppingList) {		
-		if (err) {
-			return callback(err, null);
-		}
-		var query = {
-			_id: creatorId
-		};		
-		Account.findOne(query, function(err, profile) {
-			if (err) {
-				return callback(err, null);
-			}	
-			// Let's add this new shopping list to the list contained in the profile
-			profile.shoppingLists.addToSet(savedShoppingList._id);
-			profile.save(function(err, profile) {
-				return callback(err, savedShoppingList);
+		})
+	.fail(function(err) { //catches all errors
+			logger.log('error', 'An error has occurred while processing a request to ' +
+				'retrieve shopping lists for user ' + userId + ' from ' + req.connection.remoteAddress +
+				'. Stack trace: ' + err.stack);
+			res.json(500, {
+				error: err.message
 			});
 		});
-	});	
-}
-*/
-
-function updateShoppingList(id, parameters, callback) {	
-	var query = {
-		_id: id
-	};
-	var options = {
-		'new': true
-	};
-	var update = {};
-	// Setup field to update
-	if (parameters.isTemplate) {
-		update.isTemplate = parameters.isTemplate;
-	}
-	if (parameters.title) {
-		update.title = parameters.title;
-	}
-	if (parameters.isShared) {
-		update.isShared = parameters.isShared;
-	}
-	if (parameters.invitees) {
-		update.invitees = parameters.invitees;
-	}
-	
-	update.lastUpdate = new Date();
-	
-	for (var key in parameters) {
-		if (key !== 'isTemplate' && key !== 'title' && key !== 'isShared' && key !== 'invitees') {
-			// Unexpected parameters, raise error
-			var err = new Error('Unexpected parameter: ' + key);
-			return callback(err, null);
-		}
-	}
-	
-	ShoppingList.findOneAndUpdate(query, update, options, callback);
-}
-
-function deleteShoppingList(id, callback) {
-	ShoppingList.findById(id, function(err, shoppingList) {
-		if (err) {
-			callback(err, null);
-		}
-		else {
-			if (shoppingList) {
-				shoppingList.remove(callback(null, shoppingList));
-			}
-			else {
-				callback(null, null);
-			}
-		}
-	});
 }
 
 module.exports = ShoppingListHandler;
