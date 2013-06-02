@@ -14,8 +14,9 @@ var logger = require('../utils/logger');
 var ShoppingListHandler = function() {
 	this.createShoppingList = handleCreateShoppingListRequest;	
 	this.getShoppingLists = handleGetShoppingListsRequest;
+	this.getShoppingList = handleGetShoppingListRequest;
 	this.updateShoppingList = handleUpdateShoppingListRequest;
-	this.deleteShoppingList = handleDeleteShoppingListRequest;     
+	this.deleteShoppingList = handleDeleteShoppingListRequest;
 };
 
 // On success should return status code 201 to notify the client the account
@@ -113,19 +114,7 @@ function handleCreateShoppingListRequest(req, res) {
 			});
 	}	
 }
-/*
-function handleGetShoppingListsRequest(req, res) {
-	var userId = req.params.userId || null;
-	var query = req.query;
-	// If we have a query, it means we want to retrieve templates
-	if (query && query.isTemplate) {		
-		handleGetTemplateListsForUserRequest(req, res, userId);
-	} // 
-	else {
-		handleGetListsForUserRequest(req, res, userId);
-	}
-}
-*/
+
 /// Retrieve the list of shopping lists (not templates) saved, created by the user, or shared with him.
 /// If isTemplate is true, then retrieves the list of templates created by this user
 /// Url: /api/profiles/:userId/lists
@@ -136,12 +125,80 @@ function handleGetShoppingListsRequest(req, res) {
 	// If we have a query, it means we want to retrieve templates
 	if (query && query.isTemplate) {
 		handleGetTemplateListsForUserRequest(req, res, userId);
-	} //
+	}
 	else {
 		handleGetListsForUserRequest(req, res, userId);
 	}
 }
 
+/// Retrieve a shopping list (also a template) for a certain user
+/// Url: /api/profiles/:userId/lists/:shoppingListId
+function handleGetShoppingListRequest(req, res) {
+	var userId = req.params.userId || null;
+	var shoppingListId = req.params.shoppingListId || null;
+	var accountRepository = new AccountRepository();
+	if (userId && shoppingListId) {
+		// 1: Retrieve the user object
+		accountRepository.findById(userId)
+		.then(function(account) {
+			if (account) {
+				// 2: If the user exists, check if the list id belongs to the list of shoppingLists for this user
+				if (account.shoppingLists.indexOf(shoppingListId) > -1 ) {
+					// If yes, retrieve the list by id and serve it to the client
+					var shoppingListRepository = new ShoppingListRepository();
+					return shoppingListRepository.findById(shoppingListId);
+				}
+				else {
+					// If no, return HTTP 404 not found
+					logger.log('info', 'Could not find shopping list ' + shoppingListId + ' for user ' + userId +
+						'. Request from address ' + req.connection.remoteAddress + '.');
+					res.json(404, {
+						error: "Not found"
+					});
+				}
+			}
+			else {
+				// 3: Else If the user doesn't exist -> 404
+				logger.log('info', 'Could not retrieve shopping list ' + shoppingListId +
+					', for user ' + userId + '. No such user id exists. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(404, {
+					error: "No account found matching id " + userId
+				});
+			}
+		})
+		.then(function(shoppingList) {
+			if (shoppingList) {
+				logger.log('info', 'User ' + userId + ' retrieved shopping list ' + shoppingListId + '. ' +
+					'Request from address ' + req.connection.remoteAddress + '.');
+				res.json(200, shoppingList);
+			}
+			else {
+				// 3: Else If the user doesn't exist -> 404
+				logger.log('info', 'Could not retrieve shopping list ' + shoppingListId +
+					', for user ' + userId + '. No such user shopping list exists. Request from address ' + req.connection.remoteAddress + '.');
+				res.json(404, {
+					error: "No account found matching id " + userId
+				});
+			}
+		})
+		.fail(function(err) {
+			res.json(500, {
+				error: err.message
+			});
+			logger.lsog('error', 'An error has occurred while processing a request ' +
+				' to retrieve shopping list with id ' + shoppingListId + ' for user ' + userId + ' from ' +
+				req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+		});
+	}
+	else {
+		// 400 BAD REQUEST
+		logger.log('info', 'Bad request from ' +
+			req.connection.remoteAddress + '. Message: ' + err.message);
+		res.json(400);
+	}
+}
+
+/// TODO: Check if the user has this shopping list id in the shoppingLists array and if the user is the creator of this list
 function handleUpdateShoppingListRequest(req, res) {
 	// Retrieve the shopping list id from the request
 	var id = req.params.id || null;
@@ -165,25 +222,25 @@ function handleUpdateShoppingListRequest(req, res) {
 			},
 		function(err) {
 			if (err.isBadRequest) {
+				logger.log('info', 'Bad request from ' +
+					req.connection.remoteAddress + '. Message: ' + err.message);
 				res.json(400, {
 					error: err.message
 				});
-				winston.log('error', 'An error has occurred while processing a request ' +
-					' to update shopping list with id ' + id + ' from ' +
-					req.connection.remoteAddress + '. Message: ' + err.message);
 			}
 			else {
+				logger.log('error', 'An error has occurred while processing a request ' +
+					' to update shopping list with id ' + id + ' from ' +
+					req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 				res.json(500, {
 					error: err.message
 				});
-				winston.log('error', 'An error has occurred while processing a request ' +
-					' to update shopping list with id ' + id + ' from ' +
-					req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 			}
 		});
 	}
 }
 
+/// TODO: Check if the user has this shopping list id in the shoppingLists array and if the user is the creator of this list. If yes, then remove the id from the list
 function handleDeleteShoppingListRequest(req, res) {
 	var listId = req.params.id || null;
 	var shoppingListRepository = new ShoppingListRepository();

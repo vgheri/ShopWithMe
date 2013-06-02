@@ -111,8 +111,8 @@
 					throw err;
 				}
 				res.should.have.status(200);
-									res.body.should.have.property('_id');
-					res.body.creationDate.should.not.equal(null);
+				res.body.should.have.property('_id');
+				res.body.creationDate.should.not.equal(null);
 				done();
 			});
 		});
@@ -223,6 +223,22 @@
 					done();
 				});
 		});
+		it('should retrieve the just created list',
+		function(done) {
+			request(url)
+				.get('/api/profiles/' + userId + '/lists/' + shoppingListId)
+				.expect('Content-Type', /json/)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+					res.should.have.status(200);
+					res.body.should.have.property('_id');
+					res.body.creationDate.should.not.equal(null);
+					res.body.should.have.property('title', 'Test list');
+					done();
+				});
+		});
 		it('should have added the newly created list to the lists of the user vgheri', 
 		function(done) {
 			request(url)
@@ -235,6 +251,32 @@
 					res.should.have.status(200);					
 					res.body.shoppingLists.should.not.have.length(0);
 					res.body.shoppingLists.should.includeEql(shoppingListId);
+					done();
+				});
+		});
+		it('should return 404 trying to retrieve a shopping list for a nonexistent user',
+		function(done) {
+			request(url)
+				.get('/api/profiles/5149d6d382d09b6722232772/lists/' + shoppingListId)
+				.expect('Content-Type', /json/)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+					res.should.have.status(404);
+					done();
+				});
+		});
+		it('should return 404 trying to retrieve a nonexistent shopping list for this user',
+		function(done) {
+			request(url)
+				.get('/api/profiles/' + userId + '/lists/5149d6d382d09b6722232772')
+				.expect('Content-Type', /json/)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+					res.should.have.status(404);
 					done();
 				});
 		});
@@ -411,7 +453,8 @@
 					done();
 				});
 		});
-		it('should return a 404 status code trying to delete an unknown shopping list', function(done){
+		it('should return a 404 status code trying to delete an unknown shopping list',
+		function(done){
 			request(url)
 				.del('/api/lists/507f191e810c19729de860ea')
 				.expect(404)
@@ -422,7 +465,8 @@
 					done();
 				});
 		});
-		it('should correctly delete an existing shopping list and return 204', function(done){
+		it('should correctly delete an existing shopping list and return 204',
+		function(done){
 			request(url)
 				.del('/api/lists/' + shoppingListId)
 				.expect(204)
@@ -431,7 +475,10 @@
 						throw err;
 					}
 					done();
-				});/*
+			});
+		});
+		it('should reply with 404 trying to retrieve the just deleted shopping list',
+		function(done) {
 			request(url)
 				.get('/api/profiles/' + userId + '/lists/' + shoppingListId)
 				.expect(404)
@@ -440,7 +487,7 @@
 						throw err;
 					}
 					done();
-				});*/
+			});
 		});
   });
  });

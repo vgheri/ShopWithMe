@@ -13,6 +13,7 @@ var Q = require('q');
 function AccountRepository() {
 	this.findById = findAccountById;
 	this.addShoppingListToUser = addShoppingListToUser;
+	this.removeShoppingListFromUser = removeShoppingListFromUser;
 	this.createAccount = createAccount;
 	this.findAccountByUsername = findAccountByUsername;
 	this.updateAccount = updateAccount;
@@ -47,6 +48,30 @@ function addShoppingListToUser(profile, listId) {
 			deferred.resolve(profile);
 		}
 	});
+	return deferred.promise;
+}
+
+function removeShoppingListFromUser(profile, listId) {
+	var deferred = Q.defer();
+	if (profile.shoppingLists && profile.shoppingLists.length > 0) {
+		if (profile.shoppingLists.indexOf(listId) > -1) {
+			profile.shoppingLists.pull(listId);
+			profile.save(function(err, profile) {
+				if (err) {
+					deferred.reject(new Error(err));
+				}
+				else {
+					deferred.resolve(profile);
+				}
+			});
+		}
+		else {
+			deferred.reject(new Error('No such id'));
+		}
+	}
+	else {
+		deferred.reject(new Error('Shopping list is empty for this user'));
+	}
 	return deferred.promise;
 }
 
