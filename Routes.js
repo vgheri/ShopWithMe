@@ -13,7 +13,9 @@ function setup(app, handlers) {
 	app.post('/api/lists', handlers.list.createShoppingList);
 	app.post('/api/lists/:id', handlers.list.createShoppingList);
 	app.put('/api/lists/:id', handlers.list.updateShoppingList);
-	app.get('/api/lists/:userId', handlers.list.getShoppingLists);
+	//app.get('/api/lists/:userId', handlers.list.getShoppingLists);
+	//app.get('/api/profiles/:userId/lists/:shoppingListId', handlers.list.getShoppingList);
+	app.get('/api/profiles/:userId/lists', handlers.list.getShoppingLists);
 	app.del('/api/lists/:id', handlers.list.deleteShoppingList);
 }
 

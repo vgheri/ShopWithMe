@@ -113,7 +113,7 @@ function handleCreateShoppingListRequest(req, res) {
 			});
 	}	
 }
-
+/*
 function handleGetShoppingListsRequest(req, res) {
 	var userId = req.params.userId || null;
 	var query = req.query;
@@ -121,6 +121,22 @@ function handleGetShoppingListsRequest(req, res) {
 	if (query && query.isTemplate) {		
 		handleGetTemplateListsForUserRequest(req, res, userId);
 	} // 
+	else {
+		handleGetListsForUserRequest(req, res, userId);
+	}
+}
+*/
+/// Retrieve the list of shopping lists (not templates) saved, created by the user, or shared with him.
+/// If isTemplate is true, then retrieves the list of templates created by this user
+/// Url: /api/profiles/:userId/lists
+/// Query parameters: isTemplate (1/0)
+function handleGetShoppingListsRequest(req, res) {
+	var userId = req.params.userId || null;
+	var query = req.query;
+	// If we have a query, it means we want to retrieve templates
+	if (query && query.isTemplate) {
+		handleGetTemplateListsForUserRequest(req, res, userId);
+	} //
 	else {
 		handleGetListsForUserRequest(req, res, userId);
 	}

@@ -309,7 +309,7 @@
 		it('should get all active templates for an existing user', 
 		function(done) {			
 			request(url)
-				.get('/api/lists/' + userId + '?isTemplate=1')
+				.get('/api/profiles/' + userId + '/lists?isTemplate=1')
 				.expect('Content-Type', /json/)
 				.expect(200)
 				.end(function(err,res) {
@@ -320,10 +320,10 @@
 					done();
 				});
 		});
-		it('should return 404 when trying to retrieve templates for a not existing user', 
+		it('should return 404 when trying to retrieve templates for a nonexistent user',
 		function(done) {			
 			request(url)
-				.get('/api/lists/507f191e810c19729de860ea?isTemplate=1')
+				.get('/api/profiles/507f191e810c19729de860ea/lists?isTemplate=1')
 				.expect('Content-Type', /json/)
 				.expect(404)
 				.end(function(err,res) {
@@ -336,7 +336,7 @@
 		it('should return 404 when trying to retrieve templates for an existing user who has no templates', 
 		function(done) {			
 			request(url)
-				.get('/api/lists/5149da06dea6ba6419000005?isTemplate=1')
+				.get('/api/profiles/5149da06dea6ba6419000005/lists?isTemplate=1')
 				.expect('Content-Type', /json/)
 				.expect(404)
 				.end(function(err,res) {
@@ -370,7 +370,7 @@
 			'user vgheri recentrly created or that have been shared with him', 
 		function(done) {
 			request(url)
-				.get('/api/lists/' + userId)
+				.get('/api/profiles/' + userId + '/lists')
 				.expect('Content-Type', /json/)
 				.expect(200)
 				.end(function(err,res) {
@@ -385,10 +385,10 @@
 					done();
 				});
 		});
-		it('should return 404 trying to get shopping lists for a not existing user', 
+		it('should return 404 trying to get shopping lists for a nonexistent user',
 		function(done) {
 			request(url)
-				.get('/api/lists/507f191e810c19729de860ea')
+				.get('/api/profiles/507f191e810c19729de860ea/lists')
 				.expect('Content-Type', /json/)
 				.expect(404)
 				.end(function(err,res) {
@@ -398,10 +398,10 @@
 					done();
 				});
 		});
-		it('should return 404 trying to get shopping lists for an existing user with no saved lists', 
+		it('should return 404 trying to get shopping lists for an existing user who has no saved lists',
 		function(done) {
 			request(url)
-				.get('/api/lists/5149e05ef9566c132b000003')
+				.get('/api/profiles/5149e05ef9566c132b000003/lists')
 				.expect('Content-Type', /json/)
 				.expect(404)
 				.end(function(err,res) {
@@ -411,7 +411,7 @@
 					done();
 				});
 		});
-		/*it('should return a 404 status code trying to delete an unknown shopping list', function(done){
+		it('should return a 404 status code trying to delete an unknown shopping list', function(done){
 			request(url)
 				.del('/api/lists/507f191e810c19729de860ea')
 				.expect(404)
@@ -421,7 +421,7 @@
 					}					
 					done();
 				});
-		});*/
+		});
 		it('should correctly delete an existing shopping list and return 204', function(done){
 			request(url)
 				.del('/api/lists/' + shoppingListId)
@@ -431,16 +431,16 @@
 						throw err;
 					}
 					done();
-				});
+				});/*
 			request(url)
-				.get('/api/lists/' + shoppingListId)
+				.get('/api/profiles/' + userId + '/lists/' + shoppingListId)
 				.expect(404)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
 					}
 					done();
-				});
+				});*/
 		});
   });
  });
