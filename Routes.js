@@ -10,8 +10,8 @@ function setup(app, handlers) {
 	app.get('/api/profiles/:username', handlers.account.getAccount);
 	app.put('/api/profiles/:username', handlers.account.updateAccount);
 	app.del('/api/profiles/:username', handlers.account.deleteAccount);
-	app.post('/api/lists', handlers.list.createShoppingList);
-	app.post('/api/lists/:id', handlers.list.createShoppingList);
+	app.post('/api/profiles/:userId/lists', handlers.list.createShoppingList);
+	app.post('/api/profiles/:userId/lists/:templateId', handlers.list.createShoppingList);
 	app.put('/api/lists/:id', handlers.list.updateShoppingList);
 	//app.get('/api/lists/:userId', handlers.list.getShoppingLists);
 	app.get('/api/profiles/:userId/lists/:shoppingListId', handlers.list.getShoppingList);

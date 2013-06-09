@@ -209,7 +209,7 @@
 				title: 'Test list'             
 			};			
 			request(url)
-				.post('/api/lists')
+				.post('/api/profiles/' + userId + '/lists')
 				.send(emptyShoppingList)
 				.expect(201)
 				.end(function(err, res) {
@@ -286,7 +286,7 @@
 				userId: userId
 			};			
 			request(url)
-				.post('/api/lists')
+				.post('/api/profiles/' + userId + '/lists')
 				.send(emptyShoppingList)
 				.expect(400)
 				.end(function(err, res) {					
@@ -391,7 +391,7 @@
 		it('should save a new shopping list using another given list as a template', 
 		function(done) {
 			request(url)
-				.post('/api/lists/5151aa984427051731000006')
+				.post('/api/profiles/' + userId + '/lists/5151aa984427051731000006')
 				.send({ userId: userId })
 				.expect(201)
 				.end(function(err, res) {

@@ -19,23 +19,31 @@ var ShoppingListHandler = function() {
 	this.deleteShoppingList = handleDeleteShoppingListRequest;
 };
 
-// On success should return status code 201 to notify the client the account
-// creation has been successful
-// On error should return status code 500 and the error message
+/// Create an empty shopping list or a list based on a template if the splat parameter templateId is passed
+/// On success should return status code 201 to notify the client the account creation has been successful
+/// On error should return status code 500 and the error message
+/// /api/profiles/:userId/lists/[:templateId]
 function handleCreateShoppingListRequest(req, res) {
-	var createdBy = req.body.userId || null;
+	var createdBy = req.params.userId || null;
 	var opts = {};
 	var title;
 	var shoppingListRepository = new ShoppingListRepository();
-	if (req.params.id) {
+	if (req.params.templateId) {
 		// It means we want to create a list from a template
 		// Find the template list by id
-		shoppingListRepository.findById(req.params.id)
+		shoppingListRepository.findById(req.params.templateId)
 		.then(
 			function(template) {
 				if (template) {
 					// Ok template found. Am I authorised to use this template?
-					// TODO!
+					// How can I see if I'm authorised? I can read the template createdBy filed and if it matches the userId
+					// splat parameter, then I'm authorised
+					if (template.createdBy != createdBy) {
+						logger.log('info', 'User Id ' + createdBy + ' tried to create a new list using template id ' +
+							req.params.templateId + ' but user was not authorised to use it. Request from address ' +
+							req.connection.remoteAddress);
+						res.json(401);
+					}
 					title = template.title;
 					opts = {
 						isShared: template.isShared,
