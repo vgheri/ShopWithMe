@@ -10,6 +10,8 @@ var winston = require('winston');
 var ShoppingListRepository = require('../repositories/shoppingListRepository');
 var AccountRepository = require('../repositories/accountRepository');
 var logger = require('../utils/logger');
+var security = require('../securityPolicy');
+var Q = require('q');
 
 var ShoppingListHandler = function() {
 	this.createShoppingList = handleCreateShoppingListRequest;	
@@ -127,6 +129,7 @@ function handleCreateShoppingListRequest(req, res) {
 /// If isTemplate is true, then retrieves the list of templates created by this user
 /// Url: /api/profiles/:userId/lists
 /// Query parameters: isTemplate (1/0)
+/// TODO: Check if the user has this shopping list id in the shoppingLists array
 function handleGetShoppingListsRequest(req, res) {
 	var userId = req.params.userId || null;
 	var query = req.query;
@@ -141,6 +144,7 @@ function handleGetShoppingListsRequest(req, res) {
 
 /// Retrieve a shopping list (also a template) for a certain user
 /// Url: /api/profiles/:userId/lists/:shoppingListId
+/// TODO: Check if the user has this shopping list id in the shoppingLists array
 function handleGetShoppingListRequest(req, res) {
 	var userId = req.params.userId || null;
 	var shoppingListId = req.params.shoppingListId || null;
@@ -206,49 +210,96 @@ function handleGetShoppingListRequest(req, res) {
 	}
 }
 
-/// TODO: Check if the user has this shopping list id in the shoppingLists array and if the user is the creator of this list
+/// Update a shopping list only if the user is authorised (is the creator of this list and the list is not deleted
+/// Url: /api/profiles/:userId/lists/:shoppingListId
 function handleUpdateShoppingListRequest(req, res) {
 	// Retrieve the shopping list id from the request
-	var id = req.params.id || null;
+	var id = req.params.shoppingListId || null;
+	var userId = req.params.userId || null;
 	var parameters = req.body || null;
+	var accountRepository = new AccountRepository();
 	var shoppingListRepository = new ShoppingListRepository();
-	if (id) {
-		shoppingListRepository.updateShoppingList(id, parameters)
-		.then(function(shoppingList) {
-				if (shoppingList) {
-					logger.log('info', 'Shopping list ' + id + ' has been updated.' +
-						'Request from address ' + req.connection.remoteAddress + '.');
-					res.json(200, shoppingList);
+	if (userId && id) {
+		// 1) Retrieve the account
+		// 2) Retrieve the shopping list
+		Q.all([accountRepository.findById(userId), shoppingListRepository.findById(id)])
+			.then(function(promises){
+				var account = promises[0];
+				var shoppingList = promises[1];
+				if (account && shoppingList) {
+					// 3) Ask the security if the user can update the list
+					if (security.userCanUpdateOrDeleteShoppingList(account, shoppingList)) {
+						// 4) If yes, update it
+						shoppingListRepository.updateShoppingList(id, parameters)
+							.then(function(shoppingList) {
+								logger.log('info', 'Shopping list ' + id + ' has been updated.' +
+									'Request from address ' + req.connection.remoteAddress + '.');
+								res.json(200, shoppingList);
+							}, function(err) {
+								if (err.isBadRequest) {
+									logger.log('info', 'Bad request from ' +
+										req.connection.remoteAddress + '. Message: ' + err.message);
+									res.json(400, {
+										error: err.message
+									});
+								}
+								else {
+									logger.log('error', 'An error has occurred while processing a request ' +
+										' to update shopping list with id ' + id + ' from ' +
+										req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+									res.json(500, {
+										error: err.message
+									});
+								}
+							});
+					} // 5) Else return Unauthorised
+					else {
+						logger.log('info', 'Could not update shopping list ' + id +
+							', user ' + userId + ' is not authorised. Request from address ' + req.connection.remoteAddress + '.');
+						res.json(401, {
+							error: "User is not authorised"
+						});
+					}
 				}
 				else {
+					// return 404
 					logger.log('info', 'Could not update shopping list ' + id +
-						', no such id exists. Request from address ' + req.connection.remoteAddress + '.');
+						' for user ' + userId + '. User and/or shopping list non existent . Request from address ' + req.connection.remoteAddress + '.');
 					res.json(404, {
-						error: "No shopping list found matching id " + id
+						error: "User and/or shopping list non existent"
 					});
 				}
-			},
-		function(err) {
-			if (err.isBadRequest) {
-				logger.log('info', 'Bad request from ' +
-					req.connection.remoteAddress + '. Message: ' + err.message);
-				res.json(400, {
-					error: err.message
-				});
-			}
-			else {
-				logger.log('error', 'An error has occurred while processing a request ' +
-					' to update shopping list with id ' + id + ' from ' +
-					req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-				res.json(500, {
-					error: err.message
-				});
-			}
+			})
+			.fail(function(err) {
+				if (err.isBadRequest) {
+					logger.log('info', 'Bad request from ' +
+						req.connection.remoteAddress + '. Message: ' + err.message);
+					res.json(400, {
+						error: err.message
+					});
+				}
+				else {
+					logger.log('error', 'An error has occurred while processing a request ' +
+						' to update shopping list with id ' + id + ' from ' +
+						req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+					res.json(500, {
+						error: err.message
+					});
+				}
+			});
+	}
+	else {
+		// return bad request
+		logger.log('info', 'Bad request from ' +
+			req.connection.remoteAddress + '. Missing user id or shopping list id.');
+		res.json(400, {
+			error: 'Missing user id or shopping list id'
 		});
 	}
 }
 
-/// TODO: Check if the user has this shopping list id in the shoppingLists array and if the user is the creator of this list. If yes, then remove the id from the list
+/// TODO: Check if the user has this shopping list id in the shoppingLists array and if the user is the creator of this list.
+/// If yes, then remove the id from the list using the accountRepository
 function handleDeleteShoppingListRequest(req, res) {
 	var listId = req.params.id || null;
 	var shoppingListRepository = new ShoppingListRepository();

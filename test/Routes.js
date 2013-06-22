@@ -296,7 +296,7 @@
 					done();
 				});
 		});
-		it('should update an existing shopping list, marking it as a template, shared, adding invitees and updating lastUpdate timestamp', 
+		it('should update an existing shopping list, marking it as a template, shared, adding invitees and updating lastUpdate timestamp',
 		function(done) {
 			var modifiedShoppingList = {								
 				isTemplate: true,
@@ -304,7 +304,7 @@
 				invitees: [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()]
 			};			 
 			request(url)
-				.put('/api/lists/' + shoppingListId)
+				.put('/api/profiles/' + userId + '/lists/' + shoppingListId)
 				.send(modifiedShoppingList)
 				.expect(200)
 				.end(function(err, res) {
@@ -314,14 +314,14 @@
 					done();
 				});
 		});
-		it('should return error trying to update an existing shopping list with an unknown parameter', 
+		it('should return error trying to update an existing shopping list with an unknown parameter',
 		function(done) {
 			var modifiedShoppingList = {								
 				nonsense: true
 			};
-			// 
+			this.timeout(5000);
 			request(url)
-				.put('/api/lists/' + shoppingListId)
+				.put('/api/profiles/' + userId + '/lists/' + shoppingListId)
 				.send(modifiedShoppingList)
 				.expect(400)
 				.end(function(err, res) {
@@ -338,7 +338,7 @@
 			};
 			// 
 			request(url)
-				.put('/api/lists/507f191e810c19729de860ea')
+				.put('/api/profiles/' + userId + '/lists/507f191e810c19729de860ea')
 				.send(modifiedShoppingList)
 				.expect(404)
 				.end(function(err, res) {

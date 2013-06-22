@@ -12,8 +12,7 @@ function setup(app, handlers) {
 	app.del('/api/profiles/:username', handlers.account.deleteAccount);
 	app.post('/api/profiles/:userId/lists', handlers.list.createShoppingList);
 	app.post('/api/profiles/:userId/lists/:templateId', handlers.list.createShoppingList);
-	app.put('/api/lists/:id', handlers.list.updateShoppingList);
-	//app.get('/api/lists/:userId', handlers.list.getShoppingLists);
+	app.put('/api/profiles/:userId/lists/:shoppingListId', handlers.list.updateShoppingList);
 	app.get('/api/profiles/:userId/lists/:shoppingListId', handlers.list.getShoppingList);
 	app.get('/api/profiles/:userId/lists', handlers.list.getShoppingLists);
 	app.del('/api/lists/:id', handlers.list.deleteShoppingList);
