@@ -129,7 +129,6 @@ function handleCreateShoppingListRequest(req, res) {
 /// If isTemplate is true, then retrieves the list of templates created by this user
 /// Url: /api/profiles/:userId/lists
 /// Query parameters: isTemplate (1/0)
-/// TODO: Check if the user has this shopping list id in the shoppingLists array
 function handleGetShoppingListsRequest(req, res) {
 	var userId = req.params.userId || null;
 	var query = req.query;
@@ -149,63 +148,50 @@ function handleGetShoppingListRequest(req, res) {
 	var userId = req.params.userId || null;
 	var shoppingListId = req.params.shoppingListId || null;
 	var accountRepository = new AccountRepository();
+	var shoppingListRepository = new ShoppingListRepository();
 	if (userId && shoppingListId) {
-		// 1: Retrieve the user object
-		accountRepository.findById(userId)
-		.then(function(account) {
-			if (account) {
-				// 2: If the user exists, check if the list id belongs to the list of shoppingLists for this user
-				if (account.shoppingLists.indexOf(shoppingListId) > -1 ) {
-					// If yes, retrieve the list by id and serve it to the client
-					var shoppingListRepository = new ShoppingListRepository();
-					return shoppingListRepository.findById(shoppingListId);
+		Q.all([accountRepository.findById(userId), shoppingListRepository.findById(shoppingListId)])
+			.then(function(promises){
+				var account = promises[0];
+				var shoppingList = promises[1];
+				if (account && shoppingList) {
+					// 3) Ask the security if the user can retrieve the list
+					if (security.userCanFetchShoppingList(account, shoppingList)) {
+						logger.log('info', 'User ' + userId + ' retrieved shopping list ' + shoppingListId + '. ' +
+							'Request from address ' + req.connection.remoteAddress + '.');
+						res.json(200, shoppingList);
+					}
+					else {
+						logger.log('info', 'Could not retrieve shopping list ' + shoppingListId +
+							', user ' + userId + ' is not authorised. Request from address ' + req.connection.remoteAddress + '.');
+						res.json(401, {
+							error: "User is not authorised"
+						});
+					}
 				}
 				else {
-					// If no, return HTTP 404 not found
-					logger.log('info', 'Could not find shopping list ' + shoppingListId + ' for user ' + userId +
-						'. Request from address ' + req.connection.remoteAddress + '.');
+					// return 404
+					logger.log('info', 'Could not retrieve shopping list ' + shoppingListId +
+						' for user ' + userId + '. User and/or shopping list non existent . Request from address ' + req.connection.remoteAddress + '.');
 					res.json(404, {
-						error: "Not found"
+						error: "User and/or shopping list non existent"
 					});
 				}
-			}
-			else {
-				// 3: Else If the user doesn't exist -> 404
-				logger.log('info', 'Could not retrieve shopping list ' + shoppingListId +
-					', for user ' + userId + '. No such user id exists. Request from address ' + req.connection.remoteAddress + '.');
-				res.json(404, {
-					error: "No account found matching id " + userId
+				return;
+			})
+			.fail(function(err) {
+				res.json(500, {
+					error: err.message
 				});
-			}
-		})
-		.then(function(shoppingList) {
-			if (shoppingList) {
-				logger.log('info', 'User ' + userId + ' retrieved shopping list ' + shoppingListId + '. ' +
-					'Request from address ' + req.connection.remoteAddress + '.');
-				res.json(200, shoppingList);
-			}
-			else {
-				// 3: Else If the user doesn't exist -> 404
-				logger.log('info', 'Could not retrieve shopping list ' + shoppingListId +
-					', for user ' + userId + '. No such user shopping list exists. Request from address ' + req.connection.remoteAddress + '.');
-				res.json(404, {
-					error: "No account found matching id " + userId
-				});
-			}
-		})
-		.fail(function(err) {
-			res.json(500, {
-				error: err.message
+				logger.log('error', 'An error has occurred while processing a request ' +
+					' to retrieve shopping list with id ' + shoppingListId + ' for user ' + userId + ' from ' +
+					req.connection.remoteAddress + '. Stack trace: ' + err.stack);
 			});
-			logger.lsog('error', 'An error has occurred while processing a request ' +
-				' to retrieve shopping list with id ' + shoppingListId + ' for user ' + userId + ' from ' +
-				req.connection.remoteAddress + '. Stack trace: ' + err.stack);
-		});
 	}
 	else {
 		// 400 BAD REQUEST
 		logger.log('info', 'Bad request from ' +
-			req.connection.remoteAddress + '. Message: ' + err.message);
+			req.connection.remoteAddress + '.');
 		res.json(400);
 	}
 }

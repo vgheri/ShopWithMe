@@ -1,9 +1,12 @@
-3) Refactor routes  as per http://www.slideshare.net/domenicdenicola/creating-truly-res-tful-apis
+1) Modify GET shopping list method to use the new securityPolicy object (see update list)
 
-4) Account Search and delete: GET, DELETE -> /profiles/:username should only work 
+2) Refactor route DEL  as per http://www.slideshare.net/domenicdenicola/creating-truly-res-tful-apis and
+make it invoke the AccountRepository method that removes the list id from the collection of shopping lists of the user
+
+3) Account Search and delete: GET, DELETE -> /profiles/:username should only work
  for the current user , otherwise return 403 FORBIDDEN
 	
-6) Solve the problem about sharing with persons not yet registered: invitees
+4) Solve the problem about sharing with persons not yet registered: invitees
   contains ObjectIds and for these users we still do not have them as they are not
   yet registered! Maybe I could put the username into invitees and the username 
   could be the same as the one chosen in Facebook... think abou it!
