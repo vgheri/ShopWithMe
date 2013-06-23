@@ -409,7 +409,7 @@
 				});
 		});
 		it('should return a list of all the shopping lists (not template) that the ' + 
-			'user vgheri recentrly created or that have been shared with him', 
+			'user vgheri recently created or that have been shared with him',
 		function(done) {
 			request(url)
 				.get('/api/profiles/' + userId + '/lists')
@@ -456,7 +456,7 @@
 		it('should return a 404 status code trying to delete an unknown shopping list',
 		function(done){
 			request(url)
-				.del('/api/lists/507f191e810c19729de860ea')
+				.del('/api/profiles/' + userId + '/lists/507f191e810c19729de860ea')
 				.expect(404)
 				.end(function(err,res) {
 					if (err) {
@@ -468,7 +468,7 @@
 		it('should correctly delete an existing shopping list and return 204',
 		function(done){
 			request(url)
-				.del('/api/lists/' + shoppingListId)
+				.del('/api/profiles/' + userId + '/lists/' + shoppingListId)
 				.expect(204)
 				.end(function(err,res) {
 					if (err) {

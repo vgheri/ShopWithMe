@@ -143,7 +143,6 @@ function handleGetShoppingListsRequest(req, res) {
 
 /// Retrieve a shopping list (also a template) for a certain user
 /// Url: /api/profiles/:userId/lists/:shoppingListId
-/// TODO: Check if the user has this shopping list id in the shoppingLists array
 function handleGetShoppingListRequest(req, res) {
 	var userId = req.params.userId || null;
 	var shoppingListId = req.params.shoppingListId || null;
@@ -284,35 +283,66 @@ function handleUpdateShoppingListRequest(req, res) {
 	}
 }
 
-/// TODO: Check if the user has this shopping list id in the shoppingLists array and if the user is the creator of this list.
+/// Deletes a shopping list only if the user is authorised
 /// If yes, then remove the id from the list using the accountRepository
+/// Url: /api/profiles/:userId/lists/:shoppingListId
 function handleDeleteShoppingListRequest(req, res) {
-	var listId = req.params.id || null;
+	var userId = req.params.userId || null;
+	var shoppingListId = req.params.shoppingListId || null;
+	var accountRepository = new AccountRepository();
 	var shoppingListRepository = new ShoppingListRepository();
-	shoppingListRepository.deleteShoppingList(listId)
-	.then(function(shoppingList) {
-			if (shoppingList) {
-				logger.log('info', 'Shopping list ' + listId + ' has been deleted.' +
-					'Request from address ' + req.connection.remoteAddress + '.');
-				// No need to return anything. We just deleted the list
-				res.json(204, null);
-			}
-			else {
-				logger.log('info', 'Could not delete shopping list ' + listId + ', no ' +
-					'such id exists. Request from address ' + req.connection.remoteAddress + '.');
-				res.json(404, {
-					error: "No shopping list found matching " + listId
+	if (userId && shoppingListId) {
+		// 1) Retrieve the account
+		// 2) Retrieve the shopping list
+		Q.all([accountRepository.findById(userId), shoppingListRepository.findById(shoppingListId)])
+			.then(function(promises) {
+				var account = promises[0];
+				var shoppingList = promises[1];
+				if (account && shoppingList) {
+					// 3) Ask the security if the user can delete the list
+					if (security.userCanUpdateOrDeleteShoppingList(account, shoppingList)) {
+						shoppingListRepository.deleteShoppingList(account, shoppingList)
+							.then(function(deletedList) {
+								logger.log('info', 'Shopping list ' + shoppingListId + ' has been deleted by user ' + userId +
+									'. Request from address ' + req.connection.remoteAddress + '.');
+								// No need to return anything. We just deleted the list
+								res.json(204, null);
+							});
+					}
+					else {
+						logger.log('info', 'Could not delete shopping list ' + shoppingListId +
+							', user ' + userId + ' is not authorised. Request from address ' + req.connection.remoteAddress + '.');
+						res.json(401, {
+							error: "User is not authorised"
+						});
+					}
+				}
+				else {
+					// return 404
+					logger.log('info', 'Could not update shopping list ' + shoppingListId +
+						' for user ' + userId + '. User and/or shopping list non existent . Request from address ' + req.connection.remoteAddress + '.');
+					res.json(404, {
+						error: "User and/or shopping list non existent"
+					});
+				}
+			})
+			.fail(function(err) {
+				logger.log('error', 'An error has occurred while processing a request ' +
+					' to delete shopping list with id ' + shoppingListId + ' for user ' + userId + ' from ' +
+					req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+				res.json(500, {
+					error: err.message
 				});
-			}
-		},
-	function (err) {
-		logger.log('error', 'An error has occurred while deleting shopping list ' + listId +
-			' from ' + req.connection.remoteAddress +
-			'. Stack trace: ' + err.stack);
-		res.json(500, {
-			error: err.message
+			});
+	}
+	else {
+		// return bad request
+		logger.log('info', 'Bad request from ' +
+			req.connection.remoteAddress + '. Missing user id or shopping list id.');
+		res.json(400, {
+			error: 'Missing user id or shopping list id'
 		});
-	});
+	}
 }
 
 // Returns 404 both for a not existing user and for an empty result set

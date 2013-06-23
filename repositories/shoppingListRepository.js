@@ -27,7 +27,12 @@ function findShoppingListById(id) {
 			deferred.reject(new Error(err));
 		}
 		else {
-			deferred.resolve(template);
+			if (template && template.isActive) {
+				deferred.resolve(template);
+			}
+			else {
+				deferred.resolve(null);
+			}
 		}
 	});
 	return deferred.promise;
@@ -146,26 +151,29 @@ function updateShoppingList(id, parameters) {
 	return deferred.promise;
 }
 
-function deleteShoppingList(id) {
+//make it invoke the AccountRepository method that removes the list id from the collection of shopping lists of the user
+//and mark the deleted shopping list as active = false
+function deleteShoppingList(account, shoppingList) {
 	var deferred = Q.defer();
-	findShoppingListById(id)
-	.then(function(shoppingList) {
-			if (shoppingList) {
-				shoppingList.remove(function(err, removedShoppingList) {
-					if (err) {
-						deferred.reject(new Error(err));
-					}
-					else {
-						deferred.resolve(shoppingList);
-					}
-				});
-			}
-			else {
-				deferred.resolve(null);
-			}
-	})
-	.fail(function(err) {
-		deferred.reject(err);
+	// 1) Mark the list as active = false
+	shoppingList.isActive = false;
+	shoppingList.lastUpdate = Date.now();
+	shoppingList.save(function(err, savedShoppingList) {
+		if (err) {
+			deferred.reject(new Error(err));
+		}
+		else {
+			// 2) Remove the id of the list from the collection of shopping lists of the user
+			account.shoppingLists.pull(savedShoppingList._id);
+			account.save(function(err, savedAccount) {
+				if (err) {
+					deferred.reject(new Error(err));
+				}
+				else {
+					deferred.resolve(savedShoppingList);
+				}
+			});
+		}
 	});
 	return deferred.promise;
 }

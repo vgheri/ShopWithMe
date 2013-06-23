@@ -5,7 +5,7 @@
  */
 
 var Account = require('../models/Account');
-var AccountRepository = require('../repositories/accountRepository')
+var AccountRepository = require('../repositories/accountRepository');
 var logger = require('../utils/logger');
 var winston = require('winston');
 
