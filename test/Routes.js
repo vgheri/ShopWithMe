@@ -198,6 +198,7 @@
 	describe('Shopping List', function() {
 		var userId;
 		var shoppingListId;
+		var listItemId;
 		before(function(done) {
 			userId = new mongoose.Types.ObjectId('5149d6d382d09b6722000002');
 			done();
@@ -453,6 +454,57 @@
 					done();
 				});
 		});
+		/* Tests for list items */
+		it('should add a new item to the empty shopping list just created',
+		function(done) {
+			var listItem = {
+				name: 'bread',
+				quantity: '1kg',
+				comment: 'Pane lariano'
+			};
+			request(url)
+				.post('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/')
+				.send(listItem)
+				.expect('Content-Type', /json/)
+				.expect(201)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}
+					else {
+						var shoppingList = res.body;
+						shoppingList.shoppingItems.should.have.length(1);
+						shoppingList.hasItem('bread').should.equal(true);
+						shoppingList.should.have.property('itemId');
+						shoppingList.itemId.should.not.equal(null);
+						shoppingList.should.have.property('name', 'bread');
+						shoppingList.should.have.property('quantity', '1kg');
+						shoppingList.should.have.property('comment', 'Pane lariano');
+						shoppingList.should.have.property('isInTheCart', false);
+						done();
+					}
+				});
+		});
+		it('should return error trying to add a new item without a name to an existing shopping list',
+			function(done) {
+				var listItem = {
+					quantity: '1kg'
+				};
+				request(url)
+					.post('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/')
+					.send(listItem)
+					.expect('Content-Type', /json/)
+					.expect(400)
+					.end(function(err, res) {
+						if (err) {
+							throw err;
+						}
+						else {
+							done();
+						}
+					});
+			});
+		/* End of tests for list items */
 		it('should return a 404 status code trying to delete an unknown shopping list',
 		function(done){
 			request(url)

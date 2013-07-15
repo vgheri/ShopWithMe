@@ -15,7 +15,15 @@ var shoppingListSchema = mongoose.Schema({
 	isShared: {type: Boolean, 'default': false},
 	isTemplate: {type: Boolean, 'default': false},
 	invitees: {type: [mongoose.Schema.ObjectId], 'default': []},
-	shoppingItems: {type: [{name: {type: String, required: true}, quantity: String}], 'default': []}
+	shoppingItems: {
+		type: [{
+			itemId: {type: mongoose.Schema.ObjectId, required: true},
+			name: {type: String, required: true},
+			quantity: String,
+			comment: String,
+			isInTheCart: {type: Boolean, 'default': false}
+		}],
+		'default': []}
 });
 
 // Checks if the list of invitees contains this invitee Id already
