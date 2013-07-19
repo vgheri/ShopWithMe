@@ -7,7 +7,9 @@
  */
 module.exports = {
 	"db": {
-		"mongodb": "mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest"
+		//"mongodb": "mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest"
+		// Localhost
+		"mongodb": "mongodb://localhost/ShopWithMe"
 	},
 	"logger": {
 		"api": "logs/api.log",

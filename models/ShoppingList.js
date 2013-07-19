@@ -17,7 +17,6 @@ var shoppingListSchema = mongoose.Schema({
 	invitees: {type: [mongoose.Schema.ObjectId], 'default': []},
 	shoppingItems: {
 		type: [{
-			itemId: {type: mongoose.Schema.ObjectId, required: true},
 			name: {type: String, required: true},
 			quantity: String,
 			comment: String,

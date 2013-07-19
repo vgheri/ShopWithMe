@@ -19,6 +19,7 @@ var ShoppingListHandler = function() {
 	this.getShoppingList = handleGetShoppingListRequest;
 	this.updateShoppingList = handleUpdateShoppingListRequest;
 	this.deleteShoppingList = handleDeleteShoppingListRequest;
+	this.addShoppingItem = handleAddItemRequest;
 };
 
 /// Create an empty shopping list or a list based on a template if the splat parameter templateId is passed
@@ -412,6 +413,77 @@ function handleGetListsForUserRequest(req, res, userId) {
 				error: err.message
 			});
 		});
+}
+
+/// Add a new shopping item to the desired list for the requesting user
+/// Url: /api/profiles/:userId/lists/:shoppingListId/item/
+function handleAddItemRequest(req, res) {
+	var userId = req.params.userId || null;
+	var shoppingListId = req.params.shoppingListId || null;
+	var name = req.body.name || null;
+	var quantity = req.body.quantity || null;
+	var comment = req.body.comment || null;
+	var accountRepository = new AccountRepository();
+	var shoppingListRepository = new ShoppingListRepository();
+	if (userId && shoppingListId) {
+		// 1) Retrieve the account
+		// 2) Retrieve the shopping list
+		Q.all([accountRepository.findById(userId), shoppingListRepository.findById(shoppingListId)])
+			.then(function(promises){
+				var account = promises[0];
+				var shoppingList = promises[1];
+				if (account && shoppingList) {
+					// 3) Ask the security if the user can add the item to the list
+					if (security.userCanUpdateOrDeleteShoppingList(account, shoppingList)) {
+						// 4) If yes, update it
+						shoppingListRepository.addItemToShoppingList(shoppingList, name, quantity, comment)
+							.then(function(savedShoppingList) {
+								logger.log('info', 'Item ' + name + ' has been added to shopping list ' + shoppingListId + ' by ' +
+									'user id ' + userId + ' .Request from address ' + req.connection.remoteAddress + '.');
+								res.json(201, savedShoppingList);
+							}, function(err) {
+								if (err.isBadRequest) {
+									logger.log('info', 'Bad request from ' +
+										req.connection.remoteAddress + '. Message: ' + err.message);
+									res.json(400, {
+										error: err.message
+									});
+								}
+								else {
+									logger.log('error', 'An error has occurred while processing a request ' +
+										' to update shopping list with id ' + shoppingListId + ' from ' +
+										req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+									res.json(500, {
+										error: err.message
+									});
+								}
+							});
+					}
+					else { // Unauthorised
+						logger.log('info', 'Could not add item to shopping list ' + shoppingListId +
+							': user ' + userId + ' is not authorised. Request from address ' + req.connection.remoteAddress + '.');
+						res.json(401, {
+							error: "User is not authorised"
+						});
+					}
+				}
+				else {
+					// return 404
+					logger.log('info', 'Could not add item ' + name + ' to shopping list ' + shoppingListId +
+						' for user ' + userId + '. User and/or shopping list non existent . Request from address ' + req.connection.remoteAddress + '.');
+					res.json(404, {
+						error: "User and/or shopping list non existent"
+					});
+				}
+			});
+	}
+	else {
+		logger.log('info', 'Bad request from ' +
+			req.connection.remoteAddress + '. Message: UserId and shoppingListId are required.');
+		res.json(400, {
+			error: 'UserId and shoppingListId are required.'
+		});
+	}
 }
 
 module.exports = ShoppingListHandler;

@@ -9,6 +9,7 @@
  var mongoose = require('mongoose');
  var winston = require('winston');
  var ShoppingList = require('../models/ShoppingList');
+ var config = require('../Config-debug');
 
  
  function makeid()
@@ -25,32 +26,17 @@
  describe('Routing', function() {
 	var url;
   url = 'http://localhost:3000';
+	var testUsername = makeid();
+	var testToDeleteUsername = makeid();
+	var testUserId;
   // Cloud 9
   //url = 'https://project-livec93b91f71eb7.rhcloud.com';
   //url = 'http://shopwithme.vgheri.c9.io';
 	before(function(done) {
-			mongoose.connect("mongodb://testUser:testpassword@ds045077.mongolab.com:45077/shopwithmetest");							
+			mongoose.connect(config.db.mongodb);
 			done();
 	});
 	describe('Account', function() {
-		it('should return error trying to save duplicate username', function(done) {
-			var profile = {
-				username: 'vgheri',
-				password: 'test',
-				firstName: 'Valerio',
-				lastName: 'Gheri'
-			};
-			request(url)
-				.post('/api/profiles')
-				.send(profile)
-				.end(function(err, res) {
-					if (err) {
-						throw err;
-					}                    
-					res.should.have.status(400);
-					done();
-				});
-		});
 		it('should return error trying to save account without username', function(done) {
 			var profile = {
 				//username: null,
@@ -72,7 +58,7 @@
 		});
 		it('should save a profile and return it', function(done) {
 			var profile = {
-				username: makeid(),
+				username: testUsername,
 				password: 'test',
 				firstName: 'Valerio',
 				lastName: 'Gheri'
@@ -86,7 +72,46 @@
 					}                    
 					res.should.have.status(201);
 					res.body.should.have.property('_id');
+					testUserId = res.body._id;
 					res.body.creationDate.should.not.equal(null);
+					done();
+				});
+		});
+		it('should save a profile with username ' + testToDeleteUsername  + ' and return it', function(done) {
+			var profile = {
+				username: testToDeleteUsername,
+				password: 'testdelete',
+				firstName: 'ToBe',
+				lastName: 'Deleted'
+			};
+			request(url)
+				.post('/api/profiles')
+				.send(profile)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}
+					res.should.have.status(201);
+					res.body.should.have.property('_id');
+					res.body.creationDate.should.not.equal(null);
+					done();
+				});
+		});
+		it('should return error trying to save duplicate username', function(done) {
+			var profile = {
+				username: testUsername,
+				password: 'test',
+				firstName: 'Valerio',
+				lastName: 'Gheri'
+			};
+			request(url)
+				.post('/api/profiles')
+				.send(profile)
+				.end(function(err, res) {
+					if (err) {
+						throw err;
+					}
+					res.should.have.status(400);
 					done();
 				});
 		});
@@ -104,7 +129,7 @@
 		});
 		it('should retrieve an existing account', function(done){
 			request(url)
-			.get('/api/profiles/vgheri')
+			.get('/api/profiles/' + testUsername)
 			.expect('Content-Type', /json/)
 			.end(function(err,res) {
 				if (err) {
@@ -139,7 +164,7 @@
 				lastName: 'Bermond'
 			};
 			request(url)
-				.put('/api/profiles/vgheri')
+				.put('/api/profiles/' + testUsername)
 				.send(body)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
@@ -171,9 +196,9 @@
 					done();
 				});
 		});
-		it('should correctly delete an existing account', function(done){
+		it('should correctly delete account ' + testToDeleteUsername, function(done){
 			request(url)
-				.del('/api/profiles/0CEEp')
+				.del('/api/profiles/' + testToDeleteUsername)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
@@ -181,7 +206,7 @@
 					res.should.have.status(204);
 				});
 			request(url)
-				.get('/api/profiles/0CEEp')
+				.get('/api/profiles/' + testToDeleteUsername)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
@@ -198,9 +223,10 @@
 	describe('Shopping List', function() {
 		var userId;
 		var shoppingListId;
-		var listItemId;
+		var templateId;
 		before(function(done) {
-			userId = new mongoose.Types.ObjectId('5149d6d382d09b6722000002');
+			//userId = new mongoose.Types.ObjectId('5149d6d382d09b6722000002');
+			userId = testUserId;
 			done();
 		});
 		it('should save a new empty shopping list', 
@@ -240,10 +266,10 @@
 					done();
 				});
 		});
-		it('should have added the newly created list to the lists of the user vgheri', 
+		it('should have added the newly created list to the lists of the user ' + testUsername,
 		function(done) {
 			request(url)
-				.get('/api/profiles/vgheri')
+				.get('/api/profiles/' + testUsername)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
@@ -311,7 +337,8 @@
 				.end(function(err, res) {
 					if (err) {
 						throw err;
-					}					
+					}
+					templateId = res.body._id;
 					done();
 				});
 		});
@@ -392,7 +419,7 @@
 		it('should save a new shopping list using another given list as a template', 
 		function(done) {
 			request(url)
-				.post('/api/profiles/' + userId + '/lists/5151aa984427051731000006')
+				.post('/api/profiles/' + userId + '/lists/' + templateId)
 				.send({ userId: userId })
 				.expect(201)
 				.end(function(err, res) {
@@ -400,7 +427,7 @@
 						throw err;
 					}
 					res.body.should.have.property('_id');
-					res.body.should.have.property('title', 'Template Test list');
+					res.body.should.have.property('title', 'Test list');
 					res.body.creationDate.should.not.equal(null);
 					res.body.shoppingItems.should.have.length(0);
 					res.body.invitees.should.not.have.length(0);
@@ -410,7 +437,7 @@
 				});
 		});
 		it('should return a list of all the shopping lists (not template) that the ' + 
-			'user vgheri recently created or that have been shared with him',
+			'user ' + testUsername + ' recently created or that have been shared with him',
 		function(done) {
 			request(url)
 				.get('/api/profiles/' + userId + '/lists')
@@ -474,13 +501,11 @@
 					else {
 						var shoppingList = res.body;
 						shoppingList.shoppingItems.should.have.length(1);
-						shoppingList.hasItem('bread').should.equal(true);
-						shoppingList.should.have.property('itemId');
-						shoppingList.itemId.should.not.equal(null);
-						shoppingList.should.have.property('name', 'bread');
-						shoppingList.should.have.property('quantity', '1kg');
-						shoppingList.should.have.property('comment', 'Pane lariano');
-						shoppingList.should.have.property('isInTheCart', false);
+						shoppingList.shoppingItems[0].should.have.property('_id');
+						shoppingList.shoppingItems[0].should.have.property('name', 'bread');
+						shoppingList.shoppingItems[0].should.have.property('quantity', '1kg');
+						shoppingList.shoppingItems[0].should.have.property('comment', 'Pane lariano');
+						shoppingList.shoppingItems[0].should.have.property('isInTheCart', false);
 						done();
 					}
 				});
@@ -538,6 +563,29 @@
 					if (err) {
 						throw err;
 					}
+					done();
+			});
+		});
+		it('should correctly delete account ' + testUsername, function(done){
+			request(url)
+				.del('/api/profiles/' + testUsername)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+					res.should.have.status(204);
+				});
+			request(url)
+				.get('/api/profiles/' + testUsername)
+				.expect('Content-Type', /json/)
+				.end(function(err,res) {
+					if (err) {
+						throw err;
+					}
+					res.should.have.status(200);
+					res.body.should.have.property('_id');
+					res.body.isActive.should.equal(false);
+					res.body.canLogin.should.equal(false);
 					done();
 			});
 		});

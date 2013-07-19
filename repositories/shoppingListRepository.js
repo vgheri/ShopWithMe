@@ -18,6 +18,7 @@ function ShoppingListRepository() {
 	this.findTemplatesListsForUser = findTemplatesListsForUser;
 	this.updateShoppingList = updateShoppingList;
 	this.deleteShoppingList = deleteShoppingList;
+	this.addItemToShoppingList = addItem;
 }
 
 function findShoppingListById(id) {
@@ -175,6 +176,43 @@ function deleteShoppingList(account, shoppingList) {
 			});
 		}
 	});
+	return deferred.promise;
+}
+
+function addItem(shoppingList, name, quantity, comment) {
+	var deferred = Q.defer();
+	if (name == null || name == '') {
+		var err = {
+			message: 'Item name is required',
+			isBadRequest: true
+		};
+		deferred.reject(err);
+	}
+
+	var item = {
+		name: name,
+		quantity: quantity,
+		comment: comment,
+		isInTheCart: false
+	};
+	if (shoppingList.hasItem && !shoppingList.hasItem(name)) {
+		shoppingList.shoppingItems.push(item);
+		shoppingList.save(function(err, savedShoppingList) {
+			if (err) {
+				deferred.reject(new Error(err));
+			}
+			else {
+				deferred.resolve(savedShoppingList);
+			}
+		})
+	}
+	else {
+		var err = {
+			message: 'Item already added',
+			isBadRequest: true
+		};
+		deferred.reject(err);
+	}
 	return deferred.promise;
 }
 

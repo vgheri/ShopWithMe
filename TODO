@@ -1,10 +1,14 @@
-1) I still need to modify the delete a little bit further: I need to search for the shopping list id in all accounts
+- I still need to modify the delete a little bit further: I need to search for the shopping list id in all accounts
  and then remove it from all accounts
 
-2) Account Search and delete: GET, DELETE -> /profiles/:username should only work
+- Get of a deleted account should return 404
+
+- Modify test/Routes.js to add a after() method to cleanup db and close connection mongodb
+
+- Account Search and delete: GET, DELETE -> /profiles/:username should only work
  for the current user , otherwise return 403 FORBIDDEN
 	
-2) Solve the problem about sharing with persons not yet registered: invitees
+- Solve the problem about sharing with persons not yet registered: invitees
   contains ObjectIds and for these users we still do not have them as they are not
   yet registered! Maybe I could put the username into invitees and the username 
   could be the same as the one chosen in Facebook... think about it!

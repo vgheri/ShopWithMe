@@ -16,6 +16,7 @@ function setup(app, handlers) {
 	app.get('/api/profiles/:userId/lists/:shoppingListId', handlers.list.getShoppingList);
 	app.get('/api/profiles/:userId/lists', handlers.list.getShoppingLists);
 	app.del('/api/profiles/:userId/lists/:shoppingListId', handlers.list.deleteShoppingList);
+	app.post('/api/profiles/:userId/lists/:shoppingListId/item/', handlers.list.addShoppingItem);
 }
 
 exports.setup = setup;
