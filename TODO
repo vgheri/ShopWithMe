@@ -1,7 +1,5 @@
-- I still need to modify the delete a little bit further: I need to search for the shopping list id in all accounts
- and then remove it from all accounts
-
-- Get of a deleted account should return 404
+- Modify the delete shopping list function: search for the shopping list id in all accounts
+ and then remove it from all accounts --> looks like an heavy computation, it should probably be rethinked
 
 - Modify test/Routes.js to add a after() method to cleanup db and close connection mongodb
 

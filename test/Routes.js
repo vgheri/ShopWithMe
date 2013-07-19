@@ -204,19 +204,17 @@
 						throw err;
 					}
 					res.should.have.status(204);
-				});
-			request(url)
-				.get('/api/profiles/' + testToDeleteUsername)
-				.expect('Content-Type', /json/)
-				.end(function(err,res) {
-					if (err) {
-						throw err;
-					}
-					res.should.have.status(200);
-					res.body.should.have.property('_id');
-					res.body.isActive.should.equal(false);
-					res.body.canLogin.should.equal(false);
-					done();
+					request(url)
+						.get('/api/profiles/' + testToDeleteUsername)
+						.expect('Content-Type', /json/)
+						.end(function(err,res) {
+							if (err) {
+								throw err;
+							}
+							res.should.have.status(404);
+
+							done();
+						});
 				});
 		});
 	});
@@ -574,20 +572,17 @@
 						throw err;
 					}
 					res.should.have.status(204);
+					request(url)
+						.get('/api/profiles/' + testUsername)
+						.expect('Content-Type', /json/)
+						.end(function(err,res) {
+							if (err) {
+								throw err;
+							}
+							res.should.have.status(404);
+							done();
+						});
 				});
-			request(url)
-				.get('/api/profiles/' + testUsername)
-				.expect('Content-Type', /json/)
-				.end(function(err,res) {
-					if (err) {
-						throw err;
-					}
-					res.should.have.status(200);
-					res.body.should.have.property('_id');
-					res.body.isActive.should.equal(false);
-					res.body.canLogin.should.equal(false);
-					done();
-			});
 		});
   });
  });

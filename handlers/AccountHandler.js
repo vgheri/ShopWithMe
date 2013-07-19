@@ -50,7 +50,7 @@ function handleGetAccountRequest(req, res) {
 	accountRepository.findAccountByUsername(username)
 	.then(
 		function(account) {
-			if (account) {
+			if (account && account.isActive == true) {
 				logger.log('info', 'Account ' + username + ' has been retrieved.' +
 					'Request from address ' + req.connection.remoteAddress + '.');
 				res.json(200, account);
