@@ -20,6 +20,7 @@ function ShoppingListRepository() {
 	this.deleteShoppingList = deleteShoppingList;
 	this.addItemToShoppingList = addItem;
 	this.updateShoppingListItem = updateItem;
+	this.deleteShoppingListItem = deleteItem;
 }
 
 function findShoppingListById(id) {
@@ -215,5 +216,20 @@ function updateItem(shoppingList, item, name, quantity, comment) {
 	});
 	return deferred.promise;
 }
+
+function deleteItem(shoppingList, itemId) {
+	var deferred = Q.defer();
+	shoppingList.shoppingItems.id(itemId).remove(); // remove the item
+	shoppingList.save(function(err, savedShoppingList) {
+		if (err) {
+			deferred.reject(new Error(err));
+		}
+		else {
+			deferred.resolve(savedShoppingList);
+		}
+	});
+	return deferred.promise;
+}
+
 
 module.exports = ShoppingListRepository;

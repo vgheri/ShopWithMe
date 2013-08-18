@@ -21,6 +21,7 @@ var ShoppingListHandler = function() {
 	this.deleteShoppingList = handleDeleteShoppingListRequest;
 	this.addShoppingItem = handleAddItemRequest;
 	this.updateShoppingItem = handleUpdateItemRequest;
+	this.deleteShoppingItem = handleDeleteItemRequest;
 };
 
 /// Create an empty shopping list or a list based on a template if the splat parameter templateId is passed
@@ -417,7 +418,7 @@ function handleGetListsForUserRequest(req, res, userId) {
 }
 
 /// Add a new shopping item to the desired list for the requesting user
-/// Url: /api/profiles/:userId/lists/:shoppingListId/item/
+/// Url: POST /api/profiles/:userId/lists/:shoppingListId/item/
 function handleAddItemRequest(req, res) {
 	var userId = req.params.userId || null;
 	var shoppingListId = req.params.shoppingListId || null;
@@ -489,7 +490,7 @@ function handleAddItemRequest(req, res) {
 }
 
 /// Updates an existing shopping item into the desired list for the requesting user
-/// Url: /api/profiles/:userId/lists/:shoppingListId/item/:itemId
+/// Url: PUT /api/profiles/:userId/lists/:shoppingListId/item/:itemId
 function handleUpdateItemRequest(req, res) {
 	var userId = req.params.userId || null;
 	var shoppingListId = req.params.shoppingListId || null;
@@ -573,6 +574,81 @@ function handleUpdateItemRequest(req, res) {
 			req.connection.remoteAddress + '. Message: user id, shopping list id and item id are required.');
 		res.json(400, {
 			error: 'UserId and shoppingListId are required.'
+		});
+	}
+}
+
+/// Deletes an existing shopping item from the desired list for the requesting user
+/// Url: DELETE /api/profiles/:userId/lists/:shoppingListId/item/:itemId
+function handleDeleteItemRequest(req, res) {
+	var userId = req.params.userId || null;
+	var shoppingListId = req.params.shoppingListId || null;
+	var itemId = req.params.itemId || null;
+	if (userId && shoppingListId && itemId) {
+		var accountRepository = new AccountRepository();
+		var shoppingListRepository = new ShoppingListRepository();
+		// Verify if the user has the right to access to this shopping list
+		// 1) Retrieve the account
+		// 2) Retrieve the shopping list
+		Q.all([accountRepository.findById(userId), shoppingListRepository.findById(shoppingListId)])
+			.then(function(promises){
+				var account = promises[0];
+				var shoppingList = promises[1];
+				if (account && shoppingList) {
+					// 3) Ask the security if the user can update this list
+					if (security.userCanUpdateOrDeleteShoppingList(account, shoppingList)) {
+						// retrieve the item  update it and save it
+						var itemToUpdate = shoppingList.shoppingItems.id(itemId);
+						if (itemToUpdate) {
+							shoppingListRepository.deleteShoppingListItem(shoppingList, itemId)
+								.then(function(savedShoppingList) {
+									logger.log('info', 'Item ' + itemId + ' has been delete from shopping list ' + shoppingListId + ' by ' +
+										'user id ' + userId + ' .Request from address ' + req.connection.remoteAddress + '.');
+									res.json(204, savedShoppingList);
+								}, function(err) {
+									logger.log('error', 'An error has occurred while processing a request ' +
+										' to delete item id ' + itemId + ' from shopping list with id ' + shoppingListId + ' from ' +
+										req.connection.remoteAddress + '. Stack trace: ' + err.stack);
+									res.json(500, {
+										error: err.message
+									});
+								});
+						}
+						else {
+							// return 404
+							logger.log('info', 'Could not delete item ' + itemId + ' for shopping list ' + shoppingListId +
+								' for user ' + userId + '. Item id non existent. Request from address ' + req.connection.remoteAddress + '.');
+							res.json(404, {
+								error: "Item non existent"
+							});
+						}
+
+					}
+					else {
+						// Unauthorised
+						logger.log('info', 'Could not delete item ' + itemId + ' for shopping list ' + shoppingListId +
+							': user ' + userId + ' is not authorised. Request from address ' + req.connection.remoteAddress + '.');
+						res.json(401, {
+							error: "User is not authorised"
+						});
+					}
+				}
+				else {
+					// 404
+					logger.log('info', 'Could not delete item ' + itemId + ' for shopping list ' + shoppingListId +
+						' for user ' + userId + '. User and/or shopping list non existent . Request from address ' + req.connection.remoteAddress + '.');
+					res.json(404, {
+						error: "User and/or shopping list non existent"
+					});
+				}
+			});
+	}
+	else {
+		// Bad request, userId, shoppingListId and ItemId are required
+		logger.log('info', 'Bad request from ' +
+			req.connection.remoteAddress + '. Message: user id, shopping list id and item id are required.');
+		res.json(400, {
+			error: 'UserId, shopping list id and item id are required.'
 		});
 	}
 }

@@ -18,6 +18,7 @@ function setup(app, handlers) {
 	app.del('/api/profiles/:userId/lists/:shoppingListId', handlers.list.deleteShoppingList);
 	app.post('/api/profiles/:userId/lists/:shoppingListId/item/', handlers.list.addShoppingItem);
 	app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', handlers.list.updateShoppingItem);
+	app.del('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', handlers.list.deleteShoppingItem);
 }
 
 exports.setup = setup;

@@ -499,7 +499,7 @@
 					}
 					else {
 						var shoppingList = res.body;
-						shoppingList.shoppingItems.should.have.length(1);
+						//shoppingList.shoppingItems.length.should.not.be(0);
 						shoppingList.shoppingItems[0].should.have.property('_id');
 						itemId = shoppingList.shoppingItems[0]._id;
 						shoppingList.shoppingItems[0].should.have.property('name', 'bread');
@@ -510,6 +510,34 @@
 					}
 				});
 		});
+		it('should add a new item to a not empty shopping list',
+			function(done) {
+				var listItem = {
+					name: 'cannoli siciliani',
+					quantity: '6',
+					comment: 'quelli buoni'
+				};
+				request(url)
+					.post('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/')
+					.send(listItem)
+					.expect('Content-Type', /json/)
+					.expect(201)
+					.end(function(err, res) {
+						if (err) {
+							throw err;
+						}
+						else {
+							var shoppingList = res.body;
+							//shoppingList.shoppingItems.should.have.length(2);
+							shoppingList.shoppingItems[1].should.have.property('_id');
+							shoppingList.shoppingItems[1].should.have.property('name', 'cannoli siciliani');
+							shoppingList.shoppingItems[1].should.have.property('quantity', '6');
+							shoppingList.shoppingItems[1].should.have.property('comment', 'quelli buoni');
+							shoppingList.shoppingItems[1].should.have.property('isInTheCart', false);
+							done();
+						}
+					});
+			});
 		it('should return error trying to add a new item without a name to an existing shopping list',
 			function(done) {
 				var listItem = {
@@ -568,12 +596,74 @@
 						}
 						else {
 							var shoppingList = res.body;
-							shoppingList.shoppingItems.should.have.length(1);
+							//shoppingList.shoppingItems.should.have.length(2);
 							shoppingList.shoppingItems[0].should.have.property('_id');
 							shoppingList.shoppingItems[0].should.have.property('name', 'Pane');
 							shoppingList.shoppingItems[0].should.have.property('quantity', '0,5 kg');
 							shoppingList.shoppingItems[0].should.have.property('comment', 'Lariano quality');
 							shoppingList.shoppingItems[0].should.have.property('isInTheCart', false);
+							done();
+						}
+					});
+			});
+		it('should correctly cross out an existing item into an existing shopping list',
+			function(done) {
+				request(url)
+					.put('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/' + itemId + '/crossout')
+					.send(listItem)
+					.expect('Content-Type', /json/)
+					.expect(201)
+					.end(function(err, res) {
+						if (err) {
+							throw err;
+						}
+						else {
+							var shoppingList = res.body;
+							var crossedOutItem = shoppingList.shoppingItems.id(itemId);
+							crossedOutItem.should.have.property('isInTheCart', true);
+							// Also no other items should have this property set to true
+							done();
+						}
+					});
+			});
+		it('should correctly delete an existing item from an existing shopping list and return 204',
+			function(done) {
+				request(url)
+					.del('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/' + itemId)
+					.expect(204)
+					.end(function(err, res) {
+						if (err) {
+							throw err;
+						}
+						else {
+							done();
+						}
+					});
+			});
+		it('should return ERR CODE 404 trying to delete an unknown item from an existing shopping list',
+			function(done) {
+				request(url)
+					.del('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/507f191e810c19729de860ea')
+					.expect(404)
+					.end(function(err, res) {
+						if (err) {
+							throw err;
+						}
+						else {
+							done();
+						}
+					});
+			});
+		it('should return ERR CODE 404 trying to delete an item from an unknown shopping list',
+			function(done) {
+				request(url)
+					.del('/api/profiles/' + userId + '/lists/507f191e810c19729de860ea/item/507f191e810c19729de860ea')
+					.expect(404)
+					.end(function(err, res) {
+						if (err) {
+							throw err;
+						}
+						else {
 							done();
 						}
 					});
