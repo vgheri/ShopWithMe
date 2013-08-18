@@ -39,6 +39,17 @@ shoppingListSchema.methods.hasItem = function(name) {
 	});     
 };
 
+shoppingListSchema.methods.canAddItem = function(name) {
+	if (name === null || name === '') {
+		return false;
+	}
+	var can = true;
+	if (this.hasItem(name)) {
+		can = false;
+	}
+	return can;
+};
+
 shoppingListSchema.methods.toString = function() {
 	var listExport = this.title + ' (' + this.lastUpdate + ')';
 	listExport += '\n';

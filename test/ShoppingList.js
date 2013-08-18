@@ -9,6 +9,7 @@ var assert = require("assert");
 describe('Shopping List', function() {
 	var shoppingList;
 	var wrongShoppingList;
+	var itemId = new mongoose.Types.ObjectId();
 	before(function(done) {
 		shoppingList = new ShoppingList({
 			createdBy: new mongoose.Types.ObjectId(),
@@ -17,6 +18,7 @@ describe('Shopping List', function() {
 		});		
 		shoppingList.invitees.push(new mongoose.Types.ObjectId());		
 		shoppingList.shoppingItems.push({
+			_id: itemId,
 			name: 'bread',
 			quantity: '500g'
 		});
@@ -49,9 +51,16 @@ describe('Shopping List', function() {
 	});
 	it('should have 1 item in the list', function() {
 		shoppingList.shoppingItems.should.have.length(1);
+		shoppingList.shoppingItems[0]._id.should.equal(itemId);
 		shoppingList.shoppingItems[0].name.should.equal('bread');
 		shoppingList.shoppingItems[0].quantity.should.equal('500g');
 		shoppingList.hasItem('bread').should.equal(true);
+	});
+	it('should not be possible to add a second item with the same name of an existing one', function() {
+		shoppingList.canAddItem('bread').should.equal(false);
+	});
+	it('should be possible to add butter to the list', function() {
+		shoppingList.canAddItem('butter').should.equal(true);
 	});
 	it('should print itself in a string format', function() {
 		shoppingList.toString().should.not.equal('');

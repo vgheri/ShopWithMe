@@ -1,6 +1,39 @@
 - Modify the delete shopping list function: search for the shopping list id in all accounts
  and then remove it from all accounts --> looks like an heavy computation, it should probably be rethinked
 
+- Create a Shopping List Item Schema like
+var UserSchema = new Mongoose.Schema({
+
+    username: {
+        type: String,
+        index: { unique: true, sparse: true },
+        required: true, lowercase: true, trim: true
+    },
+
+    email: {
+        type: String,
+        index: { unique: true, sparse: true },
+        required: true, lowercase: true, trim: true
+    },
+
+    contacts: [ContactSchema]
+
+});
+
+var ContactSchema = new Mongoose.Schema({
+
+    user: {
+        ref: "User",
+        type: Mongoose.Schema.ObjectId
+    },
+
+    isContact: {
+        type: Boolean,
+        default: true
+    }
+
+});
+
 - Modify test/Routes.js to add a after() method to cleanup db and close connection mongodb
 
 - Account Search and delete: GET, DELETE -> /profiles/:username should only work

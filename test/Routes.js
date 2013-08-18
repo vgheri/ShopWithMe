@@ -222,6 +222,7 @@
 		var userId;
 		var shoppingListId;
 		var templateId;
+		var itemId;
 		before(function(done) {
 			//userId = new mongoose.Types.ObjectId('5149d6d382d09b6722000002');
 			userId = testUserId;
@@ -500,6 +501,7 @@
 						var shoppingList = res.body;
 						shoppingList.shoppingItems.should.have.length(1);
 						shoppingList.shoppingItems[0].should.have.property('_id');
+						itemId = shoppingList.shoppingItems[0]._id;
 						shoppingList.shoppingItems[0].should.have.property('name', 'bread');
 						shoppingList.shoppingItems[0].should.have.property('quantity', '1kg');
 						shoppingList.shoppingItems[0].should.have.property('comment', 'Pane lariano');
@@ -523,6 +525,55 @@
 							throw err;
 						}
 						else {
+							done();
+						}
+					});
+			});
+		it('should return error trying to add an item that is already in the shopping list',
+			function(done) {
+				var listItem = {
+					name: 'bread',
+					quantity: '0,5 kg',
+					comment: 'well cooked'
+				};
+				request(url)
+					.post('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/')
+					.send(listItem)
+					.expect('Content-Type', /json/)
+					.expect(400)
+					.end(function(err, res) {
+						if (err) {
+							throw err;
+						}
+						else {
+							done();
+						}
+					});
+			});
+		it('should correctly update an existing item into an existing shopping list',
+			function(done) {
+				var listItem = {
+					name: 'Pane',
+					quantity: '0,5 kg',
+					comment: 'Lariano quality'
+				};
+				request(url)
+					.put('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/' + itemId)
+					.send(listItem)
+					.expect('Content-Type', /json/)
+					.expect(201)
+					.end(function(err, res) {
+						if (err) {
+							throw err;
+						}
+						else {
+							var shoppingList = res.body;
+							shoppingList.shoppingItems.should.have.length(1);
+							shoppingList.shoppingItems[0].should.have.property('_id');
+							shoppingList.shoppingItems[0].should.have.property('name', 'Pane');
+							shoppingList.shoppingItems[0].should.have.property('quantity', '0,5 kg');
+							shoppingList.shoppingItems[0].should.have.property('comment', 'Lariano quality');
+							shoppingList.shoppingItems[0].should.have.property('isInTheCart', false);
 							done();
 						}
 					});
