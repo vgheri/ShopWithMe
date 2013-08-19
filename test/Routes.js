@@ -589,7 +589,7 @@
 					.put('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/' + itemId)
 					.send(listItem)
 					.expect('Content-Type', /json/)
-					.expect(201)
+					.expect(200)
 					.end(function(err, res) {
 						if (err) {
 							throw err;
@@ -606,22 +606,30 @@
 						}
 					});
 			});
-		it('should correctly cross out an existing item into an existing shopping list',
+		it('should correctly cross out an existing item of an existing shopping list',
 			function(done) {
 				request(url)
 					.put('/api/profiles/' + userId + '/lists/' + shoppingListId + '/item/' + itemId + '/crossout')
-					.send(listItem)
 					.expect('Content-Type', /json/)
-					.expect(201)
+					.expect(200)
 					.end(function(err, res) {
 						if (err) {
 							throw err;
 						}
 						else {
 							var shoppingList = res.body;
-							var crossedOutItem = shoppingList.shoppingItems.id(itemId);
-							crossedOutItem.should.have.property('isInTheCart', true);
-							// Also no other items should have this property set to true
+							var itemInTheCart = 0;
+							// Also no other item in the cart should have this property set to true
+							for (var i = 0; i < shoppingList.shoppingItems.length; i++) {
+								if (shoppingList.shoppingItems[i]._id !== itemId) {
+									shoppingList.shoppingItems[i].should.have.property('isInTheCart', false);
+								}
+								else {
+									shoppingList.shoppingItems[i].should.have.property('isInTheCart', true);
+									itemInTheCart++;
+								}
+							}
+							itemInTheCart.should.equal(1);
 							done();
 						}
 					});

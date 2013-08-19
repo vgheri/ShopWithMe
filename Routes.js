@@ -19,6 +19,7 @@ function setup(app, handlers) {
 	app.post('/api/profiles/:userId/lists/:shoppingListId/item/', handlers.list.addShoppingItem);
 	app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', handlers.list.updateShoppingItem);
 	app.del('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', handlers.list.deleteShoppingItem);
+	app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId/crossout', handlers.list.crossoutShoppingItem);
 }
 
 exports.setup = setup;

@@ -21,6 +21,7 @@ function ShoppingListRepository() {
 	this.addItemToShoppingList = addItem;
 	this.updateShoppingListItem = updateItem;
 	this.deleteShoppingListItem = deleteItem;
+	this.crossoutShoppingListItem = crossoutItem;
 }
 
 function findShoppingListById(id) {
@@ -231,5 +232,19 @@ function deleteItem(shoppingList, itemId) {
 	return deferred.promise;
 }
 
+function crossoutItem(shoppingList, itemId) {
+	var deferred = Q.defer();
+	var item = shoppingList.shoppingItems.id(itemId);
+	item.isInTheCart = true;
+	shoppingList.save(function(err, savedShoppingList) {
+		if (err) {
+			deferred.reject(new Error(err));
+		}
+		else {
+			deferred.resolve(savedShoppingList);
+		}
+	});
+	return deferred.promise;
+}
 
 module.exports = ShoppingListRepository;
