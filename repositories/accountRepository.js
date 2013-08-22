@@ -18,6 +18,7 @@ function AccountRepository() {
 	this.findAccountByUsername = findAccountByUsername;
 	this.updateAccount = updateAccount;
 	this.disableAccount = disableAccount;
+	this.findOrCreateUser = findOrCreateUser;
 }
 
 function findAccountById(id) {
@@ -159,6 +160,30 @@ function disableAccount(username) {
 			}
 		}
 	);
+	return deferred.promise;
+}
+
+// Attempt to find an existing account by username, and if it cannot find it, it creates it
+// userProfile is of type UserProfile from Passport.js. See http://passportjs.org/guide/profile/
+function findOrCreateUser(userProfile) {
+	var deferred = Q.defer();
+	var email = userProfile.emails[0];
+	this.findAccountByUsername(email)
+		.then(function(account) {
+			if (account && account.username && account.username !== '') {
+				deferred.resolve(account); // Found!
+			}
+			else {
+				// Let's create the account
+				this.createAccount(email, '', userProfile.givenName, userProfile.familyName)
+					.then(function(account) {
+						deferred.resolve(account);
+					});
+			}
+		})
+		.fail(function(err) {
+			deferred.reject(err);
+		});
 	return deferred.promise;
 }
 
