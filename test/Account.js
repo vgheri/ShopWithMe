@@ -41,7 +41,6 @@ describe('Account', function() {
 	it('should have an empty list', function() {
 		account.should.have.property('shoppingLists');
 		account.shoppingLists.should.have.length(0);
-		account.shoppingLists.should.be.empty;
 	});
 	it('should have a full name', function() {
 		account.getFullName().should.equal('Valerio Gheri');

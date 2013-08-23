@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		// A list of files, which will be syntax-checked by JSHint
 		jshint: {
-			files: ['Gruntfile.js', 'models/*.js', 'handlers/*.js', './*.js', 'test/*.js' ]
+			files: ['Gruntfile.js', 'models/*.js', 'handlers/*.js', './*.js', 'test/*.js', 'infrastructure/*.js', 'utils/*.js' ]
 		},
 		// Files to be concatenated … (source and destination files)
 		concat: {
@@ -56,7 +56,7 @@ module.exports = function(grunt) {
 	//grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-cafe-mocha');
-	grunt.loadNpmTasks('grunt-mocha-cov');
+	//grunt.loadNpmTasks('grunt-mocha-cov');
 
 	// This is the default task being executed if Grunt
 	// is called without any further parameter.

@@ -6,25 +6,19 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var Random = require('../utils/random')
+var Random = require('../utils/random');
 var moment = require('moment');
-/*
-Date.prototype.addHours = function(h) {
-	this.setTime(this.getTime() + (h*60*60*1000));
-	return this;
-}
-*/
+var mongoose = require('mongoose');
 
 var ApiAccessToken = function(userId, application) {
 	this.accessToken = Random.generateApiAccessToken();
-	this.issuedAt = moment();
-	this.expirationDate = moment().add('h', 24);
+	this.issueDate = moment();
+	this.expirationDate = moment().add('h', 24).toString();
 	this.application = application;
-	this.user = userId;
+	this.userId = userId;
 };
 
 module.exports = ApiAccessToken;
-
 
 /*
  Continua creando un handler per lo use case del login/logout
