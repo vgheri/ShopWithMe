@@ -39,14 +39,6 @@ module.exports = function(grunt) {
 					reporter: 'spec'
 				}
 			}
-		},
-		mochacov: {
-			options: {
-				ui: 'bdd',
-				reporter: 'html-cov',
-				require: ['should']
-			},
-			all: ['test/*.js']
 		}
 	});
 
@@ -56,9 +48,10 @@ module.exports = function(grunt) {
 	//grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-cafe-mocha');
-	//grunt.loadNpmTasks('grunt-mocha-cov');
 
 	// This is the default task being executed if Grunt
 	// is called without any further parameter.
-	grunt.registerTask('default', ['jshint', /*'mochacov',*/ 'cafemocha'/*), 'concat', 'uglify'*/]);
+	grunt.registerTask('default', ['jshint', 'cafemocha']);
+	grunt.registerTask('lint', ['jshint']);
+	grunt.registerTask('production', ['jshint', 'cafemocha'/*, 'concat', 'uglify'*/]);
 };

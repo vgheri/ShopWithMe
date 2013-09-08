@@ -18,7 +18,8 @@ var accountSchema = mongoose.Schema({
 	// this can be set to false
 	canLogin: {type: Boolean, 'default': true},
 	// Treated as a set
-	shoppingLists: {type: [mongoose.Schema.ObjectId], 'default': []}
+	shoppingLists: {type: [mongoose.Schema.ObjectId], 'default': []},
+	facebookUserId: {type: String, 'default': null}
 });
  
 accountSchema.methods.getFullName = function() {

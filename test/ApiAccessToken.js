@@ -40,7 +40,9 @@ describe('ApiAccessToken', function() {
 		var apiAccessToken;
 		before(function(done) {
 			securityAccessToken = SecurityAccessToken.createFromApiAndFacebookToken(apiToken, "asdhajshajhsdjhadsjh");
-			mongoose.connect(config.db.mongodb);
+			if (mongoose.connection.readyState === 0) {
+				mongoose.connect(config.db.mongodb);
+			}
 			done();
 		});
 		it('should have a non empty property accessToken', function() {

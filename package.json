@@ -7,14 +7,15 @@
     "express": "3.x",
     "mongoose": "3.5.x",
     "winston": "0.6.x",
-		"moment": "2.1.x"
+    "moment": "2.1.x",
+		"request": "~2.27.0"
   },
   "devDependencies": {
     "supertest": "0.5.x",
     "mocha": "1.8.x",
     "should": "1.2.x",
     "grunt": "~0.4.0",
-    "grunt-contrib-jshint": "0.6.X",
+    "grunt-contrib-jshint": "~0.6.0",
     "grunt-contrib-concat": "~0.1.1",
     "grunt-contrib-uglify": "~0.1.0",
     "grunt-contrib-watch": "~0.1.4",
@@ -23,11 +24,11 @@
   },
   "scripts": {
     "test": "make test",
-		"blanket": {
-			"pattern": [
-				"handlers",
-				"models"
-			]
-		}
+    "blanket": {
+      "pattern": [
+        "handlers",
+        "models"
+      ]
+    }
   }
 }

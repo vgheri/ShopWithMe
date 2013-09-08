@@ -22,7 +22,7 @@
 
     return text;
  }
- 
+
  describe('Routing', function() {
 	var url;
   url = 'http://localhost:3000';
@@ -33,7 +33,9 @@
   //url = 'https://project-livec93b91f71eb7.rhcloud.com';
   //url = 'http://shopwithme.vgheri.c9.io';
 	before(function(done) {
-			mongoose.connect(config.db.mongodb);
+			if (mongoose.connection.readyState === 0) {
+				mongoose.connect(config.db.mongodb);
+			}
 			done();
 	});
 	describe('Account', function() {

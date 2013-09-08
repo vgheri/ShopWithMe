@@ -20,6 +20,8 @@ function setup(app, handlers) {
 	app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', handlers.list.updateShoppingItem);
 	app.del('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', handlers.list.deleteShoppingItem);
 	app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId/crossout', handlers.list.crossoutShoppingItem);
+	app.post('/api/auth/facebook/mobile', handlers.auth.facebookMobileLogin);
+	app.post('/api/auth/logout', handlers.auth.logout);
 }
 
 exports.setup = setup;

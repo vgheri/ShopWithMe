@@ -18,7 +18,7 @@ function AccountRepository() {
 	this.findAccountByUsername = findAccountByUsername;
 	this.updateAccount = updateAccount;
 	this.disableAccount = disableAccount;
-	this.findOrCreateUser = findOrCreateUser;
+	this.findOrCreateAccount = findOrCreateAccount;
 }
 
 function findAccountById(id) {
@@ -76,15 +76,15 @@ function removeShoppingListFromUser(profile, listId) {
 	return deferred.promise;
 }
 
-function createAccount(username, password, firstName, lastName) {
+function createAccount(username, password, firstName, lastName, facebookUserId) {
 	var deferred = Q.defer();
 	var account = new Account({
 		username: username,
 		password: password,
 		firstName: firstName,
-		lastName: lastName
+		lastName: lastName,
+		facebookUserId: facebookUserId || null
 	});
-
 	account.save(function(err, account) {
 		if (err) {
 			deferred.reject(new Error(err));
@@ -165,17 +165,16 @@ function disableAccount(username) {
 
 // Attempt to find an existing account by username, and if it cannot find it, it creates it
 // userProfile is of type UserProfile from Passport.js. See http://passportjs.org/guide/profile/
-function findOrCreateUser(userProfile) {
+function findOrCreateAccount(username, facebookUserId, firstName, lastName) {
 	var deferred = Q.defer();
-	var email = userProfile.emails[0];
-	this.findAccountByUsername(email)
+	this.findAccountByUsername(username)
 		.then(function(account) {
 			if (account && account.username && account.username !== '') {
 				deferred.resolve(account); // Found!
 			}
 			else {
 				// Let's create the account
-				this.createAccount(email, '', userProfile.givenName, userProfile.familyName)
+				createAccount(username, ' ', firstName, lastName, facebookUserId)
 					.then(function(account) {
 						deferred.resolve(account);
 					});

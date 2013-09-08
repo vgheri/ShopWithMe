@@ -73,6 +73,20 @@ securityTokenSchema.statics.findSecurityToken = function(apiAccessToken) {
 	return deferred.promise;
 };
 
+securityTokenSchema.statics.removeSecurityToken = function(apiAccessToken) {
+	var deferred = Q.defer();
+	SecurityToken.remove({ apiAccessToken: apiAccessToken }, function (err) {
+		console.log("In removeSecurityToken: " + err);
+		if (err) {
+			deferred.reject(err);
+		}
+		else {
+			deferred.resolve(apiAccessToken);
+		}
+	});
+	return deferred.promise;
+};
+
 var SecurityToken = mongoose.model('SecurityToken', securityTokenSchema);
 
 module.exports = SecurityToken;
