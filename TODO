@@ -1,45 +1,30 @@
 - Modify the delete shopping list function: search for the shopping list id in all accounts
  and then remove it from all accounts --> looks like an heavy computation, it should probably be rethinked
 
-- Create a Shopping List Item Schema like
-var UserSchema = new Mongoose.Schema({
+- findOrCreateUser should use facebook user id and not the email address. The email can change over time!
 
-    username: {
-        type: String,
-        index: { unique: true, sparse: true },
-        required: true, lowercase: true, trim: true
-    },
+- Search friends should not be an API level function. The Android application will
+  query the Facebook API using the cached access token. The API should offer a function to share a list, that
+  accepts facebook friends user ids as input.
+  If these user ids are not yet registered, then I can create a collection that stores documents such as:
+  { $facebookUserId: [list of shared list ids] }
+  Each time a user is created, we check this collection and we add the list ids into the shoppingLists array of the account.
 
-    email: {
-        type: String,
-        index: { unique: true, sparse: true },
-        required: true, lowercase: true, trim: true
-    },
+- How do I keep track of users a list has been shared with, who are not on ShopWithMe yet? I mean, when I fetch
+  a shopping list, this user's id won't be into the invitees array because the account has not yet been created!
+  Solve the problem about sharing with persons not yet registered: invitees
+  contains ObjectIds and for these users we still do not have them as they are not
+  yet registered! Maybe I could put the facebook user id into invitees and each time I fetch a list, the client has
+  the responsibility to query Facebook for resolving these user ids into name, last name and the profile pic.
+  Does Facebook has an API endpoint that given a user id gives back those info?
 
-    contacts: [ContactSchema]
-
-});
-
-var ContactSchema = new Mongoose.Schema({
-
-    user: {
-        ref: "User",
-        type: Mongoose.Schema.ObjectId
-    },
-
-    isContact: {
-        type: Boolean,
-        default: true
-    }
-
-});
+- Each time a user logs in, we check if name, last name and email are changed. If yes, update on DB --> we are sure that
+  the app stays in sync with Facebook!
 
 - Modify test/Routes.js to add a after() method to cleanup db and close connection mongodb
 
 - Account Search and delete: GET, DELETE -> /profiles/:username should only work
  for the current user , otherwise return 403 FORBIDDEN
-	
-- Solve the problem about sharing with persons not yet registered: invitees
-  contains ObjectIds and for these users we still do not have them as they are not
-  yet registered! Maybe I could put the username into invitees and the username 
-  could be the same as the one chosen in Facebook... think about it!
+
+- Secure each API endpoint so that we check for the API ACCESS TOKEN that is valid, and that the user id related to the
+  token is the same user id contained in the URL. Otherwise return 403 FORBIDDEN
