@@ -1,8 +1,6 @@
 - Modify the delete shopping list function: search for the shopping list id in all accounts
  and then remove it from all accounts --> looks like an heavy computation, it should probably be rethinked
 
-- findOrCreateUser should use facebook user id and not the email address. The email can change over time!
-
 - Search friends should not be an API level function. The Android application will
   query the Facebook API using the cached access token. The API should offer a function to share a list, that
   accepts facebook friends user ids as input.
@@ -17,9 +15,6 @@
   yet registered! Maybe I could put the facebook user id into invitees and each time I fetch a list, the client has
   the responsibility to query Facebook for resolving these user ids into name, last name and the profile pic.
   Does Facebook has an API endpoint that given a user id gives back those info?
-
-- Each time a user logs in, we check if name, last name and email are changed. If yes, update on DB --> we are sure that
-  the app stays in sync with Facebook!
 
 - Modify test/Routes.js to add a after() method to cleanup db and close connection mongodb
 

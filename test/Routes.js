@@ -44,7 +44,8 @@
 				//username: null,
 				password: 'test',
 				firstName: 'Valerio',
-				lastName: 'Gheri'
+				lastName: 'Gheri',
+				email: "test@test.com"
 			};
 			request(url)
 				.post('/api/profiles')
@@ -63,7 +64,8 @@
 				username: testUsername,
 				password: 'test',
 				firstName: 'Valerio',
-				lastName: 'Gheri'
+				lastName: 'Gheri',
+				email: "test@test.com"
 			};
 			request(url)
 				.post('/api/profiles')
@@ -84,7 +86,8 @@
 				username: testToDeleteUsername,
 				password: 'testdelete',
 				firstName: 'ToBe',
-				lastName: 'Deleted'
+				lastName: 'Deleted',
+				email: "test@test2.com"
 			};
 			request(url)
 				.post('/api/profiles')
@@ -104,7 +107,8 @@
 				username: testUsername,
 				password: 'test',
 				firstName: 'Valerio',
-				lastName: 'Gheri'
+				lastName: 'Gheri',
+				email: "test@test.com"
 			};
 			request(url)
 				.post('/api/profiles')
@@ -146,7 +150,8 @@
 		it('should return a 404 status code trying to update an unknown account', function(done){
 			var body = {
 				firstName: 'Noone',
-				lastName: 'Unknown'
+				lastName: 'Unknown',
+				email: "test@test.com"
 			};
 			request(url)
 				.put('/api/profiles/ciccio')
@@ -163,7 +168,8 @@
 		it('should correctly update an existing account', function(done){
 			var body = {
 				firstName: 'JP',
-				lastName: 'Bermond'
+				lastName: 'Bermond',
+				email: "test@test3.com"
 			};
 			request(url)
 				.put('/api/profiles/' + testUsername)
@@ -182,13 +188,8 @@
 				});
 		});
 		it('should return a 404 status code trying to delete an unknown account', function(done){
-			var body = {
-				firstName: 'Noone',
-				lastName: 'Unknown'
-			};
 			request(url)
 				.del('/api/profiles/ciccio')
-				.send(body)
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {

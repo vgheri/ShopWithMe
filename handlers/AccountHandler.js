@@ -24,8 +24,9 @@ function handleCreateAccountRequest(req, res) {
 	var password = req.body.password || null;
 	var firstName = req.body.firstName || null;
 	var lastName = req.body.lastName || null;
+	var email = req.body.email || null;
 	var accountRepository = new AccountRepository();
-	accountRepository.createAccount(username, password, firstName, lastName)
+	accountRepository.createAccount(username, password, firstName, lastName, email)
 	.then(
 		function (account) {
 			logger.log('info', 'Account ' + username + ' has been created.' +

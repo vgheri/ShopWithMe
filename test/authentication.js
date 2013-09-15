@@ -17,7 +17,7 @@ var config = require('../Config-debug');
 describe('Authentication', function() {
 	var url = 'http://localhost:3000';
 	var userId = null;
-	var validToken = 'CAACEdEose0cBAIPJkyCydjSaRjdDGzPz9vm7lWWjO23WGuaLIP6yV4SIn55rHGZBWYgx59kqNaL4qw5zv8bwL6DzQOZAh1kneZAypUbay1lR0em5UBSkzhxCyxAEJZBIJtReGPpF4kL2mZBr0zGcoccze2xPjWq0lVyDZAzZAZBPBZAjQRhbPUaOvKq3izM7iNj4ZD';
+	var validToken = 'CAACEdEose0cBAKOCZBkJ4BZCROxLHr1UVZBONqKLkwNDnw90IPkraOfmE6I8J8Pigh2EZAZCfiRUL5nduo159igYNELYpnyTvZCfgVPgtLGbVweQYUIJlVjZCpBHEbIUYyxk5dYZBAX811swQZARADZBIm7h5qXfqGwhbrsN5EVGEoekrC5dlKZCrqb9A2ejkIWLMEZD';
 	var apiAccessToken = null;
 	var invalidToken = 'CAACEdEose0cBAPejwR1CBgEJC0o9SdmgZAMw3fhbZBZAf4lGcqhVadA76oHibWUs7gvYzbOaWVs2oVuafemu7gISRiv6j7TPgRtMrOCJEUNKACsqmf82xGhvZBTOPDZAedO0aU8Gz5lO2ZCeG3mXEd0TBeniCyTeRbuXj3fMVoPj4prIKf0vI5CtPlrI3myL8ZD';
 	this.timeout(7000);
@@ -45,7 +45,7 @@ describe('Authentication', function() {
 					}
 					res.body.should.have.property('userId');
 					userId = res.body.userId;
-					res.body.should.have.property('username', 'valerio.gheri@gmail.com');
+					res.body.should.have.property('username', 'valerio.gheri');
 					res.body.should.have.property('firstName', 'Valerio');
 					res.body.should.have.property('lastName', 'Gheri');
 					res.body.should.have.property('apiAccessToken');
@@ -55,10 +55,10 @@ describe('Authentication', function() {
 					done();
 				});
 		});
-	it('should retrieve account with username valerio.gheri@gmail.com',
+	it('should retrieve account with username valerio.gheri',
 		function(done) {
 			request(url)
-				.get('/api/profiles/valerio.gheri@gmail.com')
+				.get('/api/profiles/valerio.gheri')
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {

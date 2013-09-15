@@ -13,7 +13,8 @@ describe('Account', function() {
 			username: "vgheri",
 			password: "testpwd",
 			firstName: "Valerio",
-			lastName: "Gheri"
+			lastName: "Gheri",
+			email: "test@test.com"
 		});
 		done();
 	});
@@ -28,6 +29,9 @@ describe('Account', function() {
 	});
 	it('should have a last name', function() {
 		account.should.have.property('lastName', 'Gheri');
+	});
+	it('should have an email', function() {
+		account.should.have.property('email', 'test@test.com');
 	});
 	it('should have a not null creation date', function() {
 		account.should.not.have.property('creationDate', null);

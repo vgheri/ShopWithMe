@@ -17,6 +17,7 @@ function AccountRepository() {
 	this.createAccount = createAccount;
 	this.findAccountByUsername = findAccountByUsername;
 	this.updateAccount = updateAccount;
+	this.updateLastLoginDate = updateLastLoginDate;
 	this.disableAccount = disableAccount;
 	this.findOrCreateAccount = findOrCreateAccount;
 }
@@ -76,14 +77,15 @@ function removeShoppingListFromUser(profile, listId) {
 	return deferred.promise;
 }
 
-function createAccount(username, password, firstName, lastName, facebookUserId) {
+function createAccount(username, password, firstName, lastName, email, facebookUserId) {
 	var deferred = Q.defer();
 	var account = new Account({
 		username: username,
 		password: password,
 		firstName: firstName,
 		lastName: lastName,
-		facebookUserId: facebookUserId || null
+		facebookUserId: facebookUserId || null,
+		email: email
 	});
 	account.save(function(err, account) {
 		if (err) {
@@ -122,7 +124,33 @@ function updateAccount(account) {
 	Account.findOneAndUpdate(query,
 		{
 			firstName: account.firstName,
-			lastName: account.lastName
+			lastName: account.lastName,
+			email: account.email
+		},
+		options,
+		function(err, account) {
+			if (err) {
+				deferred.reject(new Error(err));
+			}
+			else {
+				deferred.resolve(account);
+			}
+		}
+	);
+	return deferred.promise;
+}
+
+function updateLastLoginDate(account, lastLogin) {
+	var deferred = Q.defer();
+	var query = {
+		username: account.username
+	};
+	var options = {
+		'new': true
+	};
+	Account.findOneAndUpdate(query,
+		{
+			lastLogin: lastLogin
 		},
 		options,
 		function(err, account) {
@@ -165,7 +193,7 @@ function disableAccount(username) {
 
 // Attempt to find an existing account by username, and if it cannot find it, it creates it
 // userProfile is of type UserProfile from Passport.js. See http://passportjs.org/guide/profile/
-function findOrCreateAccount(username, facebookUserId, firstName, lastName) {
+function findOrCreateAccount(username, facebookUserId, email, firstName, lastName) {
 	var deferred = Q.defer();
 	this.findAccountByUsername(username)
 		.then(function(account) {
@@ -174,7 +202,7 @@ function findOrCreateAccount(username, facebookUserId, firstName, lastName) {
 			}
 			else {
 				// Let's create the account
-				createAccount(username, ' ', firstName, lastName, facebookUserId)
+				createAccount(username, ' ', firstName, lastName, email, facebookUserId)
 					.then(function(account) {
 						deferred.resolve(account);
 					});

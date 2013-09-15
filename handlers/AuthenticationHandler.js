@@ -143,6 +143,7 @@ function verifyFacebookUserAccessToken(token) {
 		if (!error && response && response.statusCode && response.statusCode == 200) {
 			var user = {
 				facebookUserId: data.id,
+				username: data.username,
 				firstName: data.first_name,
 				lastName: data.last_name,
 				email: data.email
@@ -174,18 +175,29 @@ function performFacebookLogin(appName, userProfile, fbAccessToken) {
 	var deferred = Q.defer();
 	if (appName && userProfile && fbAccessToken) {
 		var accountRepository = new AccountRepository();
-		accountRepository.findOrCreateAccount(userProfile.email, userProfile.facebookUserId, userProfile.firstName, userProfile.lastName)
+		accountRepository.findOrCreateAccount(userProfile.username, userProfile.facebookUserId, userProfile.email,
+				userProfile.firstName, userProfile.lastName)
 			.then(function(account) {
 				if (account.facebookUserId != userProfile.facebookUserId) {
 					deferred.reject(new Error("Invalid token"));
 				}
 				else {
+					var accountRepository = new AccountRepository();
+					// Update the account name, lastname and email, if they are changed since last login
+					if (account.hasChanged(userProfile.firstName, userProfile.lastName, userProfile.email)) {
+						accountRepository.updateAccount({
+							firstName: userProfile.firstName,
+							lastName: userProfile.lastName,
+							email: userProfile.email
+						});
+					}
 					var apiAccessToken = new ApiAccessToken(account._id, appName);
 					var securityToken = SecurityToken.createFromApiAndFacebookToken(apiAccessToken, fbAccessToken);
 					SecurityToken.saveSecurityToken(securityToken)
 						.then(function(savedSecurityToken){
 							var loginViewModel = new LoginViewModel(account._id, account.username, account.firstName, account.lastName,
 								apiAccessToken.accessToken);
+							accountRepository.updateLastLoginDate(account, Date.now());
 							deferred.resolve(loginViewModel);
 						});
 				}

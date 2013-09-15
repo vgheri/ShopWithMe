@@ -4,11 +4,11 @@
  * Account model
  */ 
 var mongoose = require('mongoose');
-var shoppingListSchema = require('./ShoppingList');
 
 var accountSchema = mongoose.Schema({     
 	username: {type: String, required: true, index: {unique: true}},
 	password: {type: String, required: true},
+	email: {type: String, required: true},
 	firstName: {type: String, required: true},
 	lastName: {type: String, required: true},
 	creationDate: {type: Date, 'default': Date.now},
@@ -21,7 +21,11 @@ var accountSchema = mongoose.Schema({
 	shoppingLists: {type: [mongoose.Schema.ObjectId], 'default': []},
 	facebookUserId: {type: String, 'default': null}
 });
- 
+
+accountSchema.methods.hasChanged = function(firstName, lastName, email) {
+	return (this.firstName !== firstName || this.lastName !== lastName || this.email !== email);
+};
+
 accountSchema.methods.getFullName = function() {
 	return (this.firstName + ' ' + this.lastName);    
 };
