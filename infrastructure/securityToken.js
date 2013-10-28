@@ -87,6 +87,23 @@ securityTokenSchema.statics.removeSecurityToken = function(apiAccessToken) {
 	return deferred.promise;
 };
 
+securityTokenSchema.statics.authorise = function(apiAccessToken, userId) {
+    var deferred = Q.defer();
+    SecurityToken.findSecurityToken(apiAccessToken)
+        .then(function(securityToken) {
+            if (securityToken !== null && securityToken.userId.toString() === userId.toString()) {
+                deferred.resolve(true);
+            }
+            else {
+                deferred.resolve(false);
+            }
+        })
+        .fail(function(err) {
+            deferred.reject(err);
+        });
+    return deferred.promise;
+};
+
 var SecurityToken = mongoose.model('SecurityToken', securityTokenSchema);
 
 module.exports = SecurityToken;

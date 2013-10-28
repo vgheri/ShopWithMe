@@ -38,7 +38,17 @@ module.exports = function(grunt) {
 					],
 					reporter: 'spec'
 				}
-			}
+			},
+            testSingleModule: {
+                src: 'test/ApiAccessToken.js',
+                options: {
+                    ui: 'bdd',
+                    require: [
+                        'should'
+                    ],
+                    reporter: 'spec'
+                }
+            }
 		}
 	});
 
@@ -52,6 +62,7 @@ module.exports = function(grunt) {
 	// This is the default task being executed if Grunt
 	// is called without any further parameter.
 	grunt.registerTask('default', ['jshint', 'cafemocha']);
+    grunt.registerTask('singletest', ['jshint', 'cafemocha:testSingleModule']);
 	grunt.registerTask('lint', ['jshint']);
 	grunt.registerTask('production', ['jshint', 'cafemocha'/*, 'concat', 'uglify'*/]);
 };

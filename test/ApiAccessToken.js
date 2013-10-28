@@ -5,6 +5,9 @@
  * Time: 12.38
  * Unit tests for object ApiAccessToken.
  */
+
+/*jshint expr: true*/
+
 var should = require("should");
 var ApiAccessToken = require("../infrastructure/apiAccessToken");
 var SecurityAccessToken = require("../infrastructure/securityToken");
@@ -97,6 +100,26 @@ describe('ApiAccessToken', function() {
 					throw new Error(err);
 				});
 		});
+        it('should authorise the request', function(done) {
+            SecurityAccessToken.authorise(apiAccessToken, securityAccessToken.userId)
+                .then(function(isRequestAuthorised) {
+                    isRequestAuthorised.should.be.true;
+                    done();
+                })
+                .fail(function(err) {
+                    throw new Error(err);
+                });
+        });
+        it('should not authorise the request', function(done) {
+            SecurityAccessToken.authorise(apiAccessToken, new mongoose.Types.ObjectId('5149d6d382d09b6722000003'))
+                .then(function(isRequestAuthorised) {
+                    isRequestAuthorised.should.be.false;
+                    done();
+                })
+                .fail(function(err) {
+                    throw new Error(err);
+                });
+        });
 	});
 });
 
