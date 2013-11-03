@@ -17,6 +17,7 @@ var ShoppingListHandler = require('./handlers/ShoppingListHandler');
 var AuthenticationHandler = require('./handlers/AuthenticationHandler');
 var routes = require('./Routes');
 var fs = require('fs');
+var securityPolicy = require('./securityPolicy');
 
 var expressLogFile = fs.createWriteStream('./logs/express.log', {flags: 'a'}); 
 //var viewEngine = 'jade'; // modify for your view engine
@@ -37,6 +38,7 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
+
 var handlers = {
   account: new AccountHandler(),
   list: new ShoppingListHandler(),
@@ -44,7 +46,7 @@ var handlers = {
 };
 
 function start() {
-  routes.setup(app, handlers);
+  routes.setup(app, handlers, securityPolicy.authorise);
   var port = process.env.PORT || 3000;
   app.listen(port);
   console.log("Express server listening on port %d in %s mode", port, app.settings.env);

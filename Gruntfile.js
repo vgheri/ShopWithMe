@@ -39,16 +39,16 @@ module.exports = function(grunt) {
 					reporter: 'spec'
 				}
 			},
-            testSingleModule: {
-                src: 'test/ApiAccessToken.js',
-                options: {
-                    ui: 'bdd',
-                    require: [
-                        'should'
-                    ],
-                    reporter: 'spec'
-                }
-            }
+      testSingleModule: {
+          src: 'test/Routes.js',
+          options: {
+              ui: 'bdd',
+              require: [
+                  'should'
+              ],
+              reporter: 'spec'
+          }
+      }
 		}
 	});
 
