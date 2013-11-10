@@ -40,7 +40,7 @@
         mongoose.connect(config.db.mongodb);
     }
     var loginCredentials = {
-        fbToken: 'CAACEdEose0cBANJUwfwGNC9qRNI2NwJ7hSyR7HgNkOBAOvx06S3uCzgZARuBPKvZA5x0RaqsDkuqrUpISMPsdSQHUiW0yFrIaZAARGjpMbMMRbGWggD8dZBXaxu3ZC9ASOLwsKZCbLv98xUPZBPNLQLnUe0Xw14OfVRSFx8gXyb5VyVbNSGhvAP6LMTUXTf4McZD',
+        fbToken: 'CAACEdEose0cBADpR2wZByXutZCkUvistNT52w0lKsDUzxeJBxJkW5DNl6eqAQBZC4B7nduib8Hs6hlE2Llrl1RFa0tIzbzBZCTXZCX2MB8stBhR1RrZBwZApO7HAPnFaQr5oiyAgORGVXpFoewAWX6OOLYGtD7yAzkozzCcyWPUZCWI0pLxxZBgqgdytYZBvZAuRJ4ZD',
         appName: 'testFBMobile'
     };
     request(url)
@@ -822,6 +822,24 @@
 						});
 				});
 		});*/
+    it('should correctly logout a user and delete the corresponding security token from the db', function(done) {
+      var body = {
+        apiAccessToken: apiAccessToken,
+        userId: userId
+      };
+      request(url)
+        .post('/api/auth/logout')
+        .send(body)
+        .expect(200)
+        .end(function(err, res) {
+          if (err) {
+            throw err;
+          }
+          else {
+            done();
+          }
+        });
+    });
   });
  });
  

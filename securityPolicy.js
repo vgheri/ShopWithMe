@@ -39,7 +39,7 @@ function userCanUpdateOrDeleteShoppingList(account, shoppingList) {
 
 function authorise(req, res, next) {
   var apiAccessToken = req.body.apiAccessToken || null;
-  var userId = req.params.userId || null;
+  var userId = req.params.userId || req.body.userId || null;
   if (apiAccessToken && userId) {
     SecurityToken.authorise(apiAccessToken, userId)
       .then(function(authorised) {

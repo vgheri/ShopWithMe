@@ -21,7 +21,7 @@ function setup(app, handlers, authorisationPolicy) {
 	app.del('/api/profiles/:userId/lists/:shoppingListId/item/:itemId', authorisationPolicy, handlers.list.deleteShoppingItem);
 	app.put('/api/profiles/:userId/lists/:shoppingListId/item/:itemId/crossout', authorisationPolicy, handlers.list.crossoutShoppingItem);
 	app.post('/api/auth/facebook/mobile', handlers.auth.facebookMobileLogin);
-	app.post('/api/auth/logout', handlers.auth.logout);
+	app.post('/api/auth/logout', authorisationPolicy, handlers.auth.logout);
 }
 
 exports.setup = setup;

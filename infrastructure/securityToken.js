@@ -76,8 +76,8 @@ securityTokenSchema.statics.findSecurityToken = function(apiAccessToken) {
 securityTokenSchema.statics.removeSecurityToken = function(apiAccessToken) {
 	var deferred = Q.defer();
 	SecurityToken.remove({ apiAccessToken: apiAccessToken }, function (err) {
-		console.log("In removeSecurityToken: " + err);
 		if (err) {
+      console.log("In removeSecurityToken: " + err);
 			deferred.reject(err);
 		}
 		else {
