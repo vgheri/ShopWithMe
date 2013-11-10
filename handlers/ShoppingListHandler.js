@@ -93,7 +93,7 @@ function handleCreateShoppingListRequest(req, res) {
 			});
 	} // We want to create an empty shopping list
 	else {
-		title = req.body.title || null;	
+		title = req.body.shoppingList.title || null;
 		// createShoppingList handles creation of all lists, both empty ones
 		// and pre-populated ones
 		opts = {
@@ -205,7 +205,7 @@ function handleUpdateShoppingListRequest(req, res) {
 	// Retrieve the shopping list id from the request
 	var id = req.params.shoppingListId || null;
 	var userId = req.params.userId || null;
-	var parameters = req.body || null;
+	var parameters = req.body.shoppingList || null;
 	var accountRepository = new AccountRepository();
 	var shoppingListRepository = new ShoppingListRepository();
 	if (userId && id) {
@@ -423,9 +423,9 @@ function handleGetListsForUserRequest(req, res, userId) {
 function handleAddItemRequest(req, res) {
 	var userId = req.params.userId || null;
 	var shoppingListId = req.params.shoppingListId || null;
-	var name = req.body.name || null;
-	var quantity = req.body.quantity || null;
-	var comment = req.body.comment || null;
+	var name = req.body.listItem.name || null;
+	var quantity = req.body.listItem.quantity || null;
+	var comment = req.body.listItem.comment || null;
 	var accountRepository = new AccountRepository();
 	var shoppingListRepository = new ShoppingListRepository();
 	if (userId && shoppingListId) {
@@ -496,9 +496,9 @@ function handleUpdateItemRequest(req, res) {
 	var userId = req.params.userId || null;
 	var shoppingListId = req.params.shoppingListId || null;
 	var itemId = req.params.itemId || null;
-	var name = req.body.name || null;
-	var quantity = req.body.quantity || null;
-	var comment = req.body.comment || null;
+	var name = req.body.listItem.name || null;
+	var quantity = req.body.listItem.quantity || null;
+	var comment = req.body.listItem.comment || null;
 	if (userId && shoppingListId && itemId) {
 		var accountRepository = new AccountRepository();
 		var shoppingListRepository = new ShoppingListRepository();

@@ -21,10 +21,12 @@
 - Account Search and delete: GET, DELETE -> /profiles/:username should only work
  for the current user , otherwise return 401 NOT AUTHORIZED
 
-    @ Refactor securityPolicy.js into a new handler called AuthorisationHandler.
-    @ Refactor Server.js where I inject the authroise method
     @ Refactor Routes.js test file to always send the api access token and use the api access token
 
+- Refactor following routes to accept userId:
+    app.get('/api/profiles/:username', handlers.account.getAccount);
+    app.put('/api/profiles/:username', handlers.account.updateAccount);
+    app.del('/api/profiles/:username', handlers.account.deleteAccount);
 
 - Secure each API endpoint so that we check for the API ACCESS TOKEN that is valid, and that the user id related to the
   token is the same user id contained in the URL. Otherwise return 403 FORBIDDEN
