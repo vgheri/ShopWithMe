@@ -91,7 +91,7 @@ securityTokenSchema.statics.authorise = function(apiAccessToken, userId) {
   var deferred = Q.defer();
   SecurityToken.findSecurityToken(apiAccessToken)
     .then(function(securityToken) {
-      if (securityToken !== null && securityToken.userId.toString() === userId.toString()) {
+      if (securityToken !== null && !securityToken.isExpired() && securityToken.userId.toString() === userId.toString()) {
           deferred.resolve(true);
       }
       else {

@@ -75,7 +75,6 @@ function handleLogoutRequest(req, res) {
 	if (apiAccessToken) {
 		SecurityToken.findSecurityToken(apiAccessToken)
 			.then(function(securityToken) {
-				if (securityToken && securityToken.userId.toString() === userId.toString()) {
 					SecurityToken.removeSecurityToken(apiAccessToken)
 						.then(function(apiAccessToken) {
 							// Log out successful
@@ -89,13 +88,6 @@ function handleLogoutRequest(req, res) {
 								error: err.message
 							});
 						});
-				}
-				else {
-					// 400 BAD REQUEST
-					logger.log('error', 'Bad log out request from ' +
-						req.connection.remoteAddress + '. Reason: invalid api access token.');
-					res.json(400, 'Invalid api access token');
-				}
 			}, function(err) {
 				logger.log('error', 'An error has occurred while attempting to log out user ' + userId +
 					' from address ' + req.connection.remoteAddress + '. Stack trace: ' + err.stack);
