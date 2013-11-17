@@ -87,6 +87,20 @@ securityTokenSchema.statics.removeSecurityToken = function(apiAccessToken) {
 	return deferred.promise;
 };
 
+securityTokenSchema.statics.removeSecurityTokensForUserId = function(userId) {
+  var deferred = Q.defer();
+  SecurityToken.remove({ userId: userId }, function (err) {
+    if (err) {
+      console.log("In removeSecurityToken: " + err);
+      deferred.reject(err);
+    }
+    else {
+      deferred.resolve(userId);
+    }
+  });
+  return deferred.promise;
+};
+
 securityTokenSchema.statics.authorise = function(apiAccessToken, userId) {
   var deferred = Q.defer();
   SecurityToken.findSecurityToken(apiAccessToken)

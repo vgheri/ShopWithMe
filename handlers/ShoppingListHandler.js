@@ -199,7 +199,7 @@ function handleGetShoppingListRequest(req, res) {
 	}
 }
 
-/// Update a shopping list only if the user is authorised (is the creator of this list and the list is not deleted
+/// Update a shoppfing list only if the user is authorised (is the creator of this list and the list is not deleted
 /// Url: /api/profiles/:userId/lists/:shoppingListId
 function handleUpdateShoppingListRequest(req, res) {
 	// Retrieve the shopping list id from the request

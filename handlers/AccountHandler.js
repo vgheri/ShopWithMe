@@ -6,6 +6,7 @@
 
 var Account = require('../models/Account');
 var AccountRepository = require('../repositories/accountRepository');
+var SecurityToken = require('../infrastructure/securityToken');
 var logger = require('../utils/logger');
 var winston = require('winston');
 
@@ -43,30 +44,30 @@ function handleCreateAccountRequest(req, res) {
 	);
 }
 
-/* TODO: I should update this function to check the identity of the origin.
-  We don't want anyone being able to peek into the username collection */
 function handleGetAccountRequest(req, res) {
-	var username = req.params.username || null;
+	var userId = req.params.userId || null;
 	var accountRepository = new AccountRepository();
-	accountRepository.findAccountByUsername(username)
+	accountRepository.findById(userId)
 	.then(
 		function(account) {
-			if (account && account.isActive === true) {
-				logger.log('info', 'Account ' + username + ' has been retrieved.' +
+      console.log(account);
+      if (account && account.isActive === true) {
+				logger.log('info', 'Account ' + userId + ' has been retrieved.' +
 					'Request from address ' + req.connection.remoteAddress + '.');
 				res.json(200, account);
 			}
 			else {
-				logger.log('info', 'Could not retrieve account ' + username + ', no ' +
-					'such username. Request from address ' + req.connection.remoteAddress + '.');
+        console.log('account not found');
+				logger.log('info', 'Could not retrieve account ' + userId + ', no ' +
+					'such id exists. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(404, {
-					error: "No account found matching " + username
+					error: "No account found matching id " + userId
 				});
 			}
 		},
 		function(err) {
 			logger.log('error', 'An error has occurred while processing a request to retrieve ' +
-				'account ' + username + ' from ' + req.connection.remoteAddress +
+				'account id ' + userId + ' from ' + req.connection.remoteAddress +
 				'. Stack trace: ' + err.stack);
 			res.json(500, {
 				error: err.message
@@ -109,28 +110,29 @@ function handleUpdateAccountRequest(req, res) {
 }
 
 function handleDeleteAccountRequest(req, res) {
-	var username = req.params.username || null;
+	var userId  = req.params.userId || null;
 	var accountRepository = new AccountRepository();
-	accountRepository.disableAccount(username)
+	accountRepository.disableAccount(userId)
 	.then(
 		function (account) {
 			if (account) {
-				logger.log('info', 'Account ' + username + ' has been disabled.' +
+        SecurityToken.removeSecurityTokensForUserId(userId);
+				logger.log('info', 'Account id ' + userId + ' has been disabled.' +
 					'Request from address ' + req.connection.remoteAddress + '.');
 				// No need to return anything. We just disabled the account
 				res.json(204, null);
 			}
 			else {
-				logger.log('info', 'Could not disable account ' + username + ', no ' +
-					'such username. Request from address ' + req.connection.remoteAddress + '.');
+				logger.log('info', 'Could not disable account id ' + userId + ', no ' +
+					'such id exists. Request from address ' + req.connection.remoteAddress + '.');
 				res.json(404, {
-					error: "No account found matching " + username
+					error: "No account found matching id " + userId
 				});
 			}
 		},
 		function (err) {
 			logger.log('error', 'An error has occurred while processing a request to disable ' +
-				'account ' + username + ' from ' + req.connection.remoteAddress +
+				'account id ' + userId + ' from ' + req.connection.remoteAddress +
 				'. Stack trace: ' + err.stack);
 			res.json(500, {
 				error: err.message

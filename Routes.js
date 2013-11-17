@@ -6,10 +6,12 @@
  * To change this template use File | Settings | File Templates.
  */
 function setup(app, handlers, authorisationPolicy) {
-	app.post('/api/profiles', handlers.account.createAccount);
-	app.get('/api/profiles/:username', handlers.account.getAccount);
-	app.put('/api/profiles/:username', handlers.account.updateAccount);
-	app.del('/api/profiles/:username', handlers.account.deleteAccount);
+	//app.post('/api/profiles', handlers.account.createAccount);
+	//app.get('/api/profiles/:username', handlers.account.getAccount);
+  app.get('/api/profiles/:userId', authorisationPolicy, handlers.account.getAccount);
+	//app.put('/api/profiles/:username', handlers.account.updateAccount);
+	//app.del('/api/profiles/:username', handlers.account.deleteAccount);
+  app.del('/api/profiles/:userId', authorisationPolicy, handlers.account.deleteAccount);
 	app.post('/api/profiles/:userId/lists', authorisationPolicy, handlers.list.createShoppingList);
 	app.post('/api/profiles/:userId/lists/:templateId', authorisationPolicy, handlers.list.createShoppingList);
 	app.put('/api/profiles/:userId/lists/:shoppingListId', authorisationPolicy, handlers.list.updateShoppingList);

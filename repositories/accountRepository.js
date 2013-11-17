@@ -165,10 +165,10 @@ function updateLastLoginDate(account, lastLogin) {
 	return deferred.promise;
 }
 
-function disableAccount(username) {
+function disableAccount(userId) {
 	var deferred = Q.defer();
 	var query = {
-		username: username
+		_id: userId
 	};
 	var options = {
 		'new': true

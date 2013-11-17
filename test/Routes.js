@@ -25,10 +25,8 @@
 
  describe('Routing', function() {
 	var url;
-    url = 'http://localhost:3000';
-	var testUsername = makeid();
-	var testToDeleteUsername = makeid();
-	var testUserId;
+  url = 'http://localhost:3000';
+	var fbUsername;
   var apiAccessToken;
   var loginDone = false;
   var fbUserId;
@@ -40,7 +38,7 @@
         mongoose.connect(config.db.mongodb);
     }
     var loginCredentials = {
-        fbToken: 'CAACEdEose0cBADpR2wZByXutZCkUvistNT52w0lKsDUzxeJBxJkW5DNl6eqAQBZC4B7nduib8Hs6hlE2Llrl1RFa0tIzbzBZCTXZCX2MB8stBhR1RrZBwZApO7HAPnFaQr5oiyAgORGVXpFoewAWX6OOLYGtD7yAzkozzCcyWPUZCWI0pLxxZBgqgdytYZBvZAuRJ4ZD',
+        fbToken: 'CAACEdEose0cBAEqPeiV769RPHO0duspjZAFeDFG2ShEjdfq1JcwniMLZBvfHI9NU1JL8FWyDMgOXOXzec5XEPh7HnNVnFZCzbPYmFL6b5uskagDajIgwqZCY995p4fbP4ctZAOEFZBpCDiSVTHZCmrjIYZAwrMLJ4bUbJHUFVpTZC5sRYf4GIgCd2JBZC06EmUVoYZD',
         appName: 'testFBMobile'
     };
     request(url)
@@ -54,12 +52,13 @@
           apiAccessToken = res.body.apiAccessToken;
           fbUserId = res.body.userId; // I should use the fbUserId as the user id of all of my requests!
           loginDone = true;
+          fbUsername = res.body.username;
           done();
         });
     //done();
-	});/*
+	});
 	describe('Account', function() {
-		it('should return error trying to save account without username', function(done) {
+		/*it('should return error trying to save account without username', function(done) {
 			var profile = {
 				//username: null,
 				password: 'test',
@@ -140,22 +139,24 @@
 					res.should.have.status(400);
 					done();
 				});
-		});
-		it('should return a 404 status code for an unknown account', function(done){
+		});*/
+		it('should return a 401 status code trying to retrieve an account different than mine', function(done){
 			request(url)
 				.get('/api/profiles/ciccio')
+        .send({apiAccessToken: apiAccessToken})
 				.expect('Content-Type', /json/)
 				.end(function(err,res) {
 					if (err) {
 						throw err;
 					}
-					res.should.have.status(404);
+					res.should.have.status(401);
 					done();
 				});
 		});
 		it('should retrieve an existing account', function(done){
 			request(url)
-			.get('/api/profiles/' + testUsername)
+			.get('/api/profiles/' + fbUserId)
+      .send({apiAccessToken: apiAccessToken})
 			.expect('Content-Type', /json/)
 			.end(function(err,res) {
 				if (err) {
@@ -164,10 +165,12 @@
 				res.should.have.status(200);
 				res.body.should.have.property('_id');
 				res.body.creationDate.should.not.equal(null);
+        res.body.firstName.should.equal('Valerio');
+        res.body.lastName.should.equal('Gheri');
 				done();
 			});
 		});
-		it('should return a 404 status code trying to update an unknown account', function(done){
+		/*it('should return a 404 status code trying to update an unknown account', function(done){
 			var body = {
 				firstName: 'Noone',
 				lastName: 'Unknown',
@@ -218,29 +221,8 @@
 					res.should.have.status(404);                     
 					done();
 				});
-		});
-		it('should correctly delete account ' + testToDeleteUsername, function(done){
-			request(url)
-				.del('/api/profiles/' + testToDeleteUsername)
-				.end(function(err,res) {
-					if (err) {
-						throw err;
-					}
-					res.should.have.status(204);
-					request(url)
-						.get('/api/profiles/' + testToDeleteUsername)
-						.expect('Content-Type', /json/)
-						.end(function(err,res) {
-							if (err) {
-								throw err;
-							}
-							res.should.have.status(404);
-
-							done();
-						});
-				});
-		});
-	}); */
+		}); */
+	});
 	describe('Shopping List', function() {
 		var userId;
 		var shoppingListId;
@@ -840,6 +822,28 @@
           }
         });
     });
+    /*it('should correctly delete account id ' + userId, function(done){
+      request(url)
+        .del('/api/profiles/' + userId)
+        .send({apiAccessToken: apiAccessToken})
+        .end(function(err,res) {
+          if (err) {
+            throw err;
+          }
+          res.should.have.status(204);
+          request(url)
+            .get('/api/profiles/' + userId)
+            .send({apiAccessToken: apiAccessToken})
+            .expect('Content-Type', /json/)
+            .end(function(err,res) {
+              if (err) {
+                throw err;
+              }
+              res.should.have.status(404);
+              done();
+            });
+        });
+    });*/
   });
  });
  
