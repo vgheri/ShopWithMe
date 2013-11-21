@@ -1,5 +1,6 @@
 - Modify the delete shopping list function: search for the shopping list id in all accounts
- and then remove it from all accounts --> looks like an heavy computation, it should probably be rethinked
+ and then remove it from all accounts --> looks like an heavy computation, i should probably refactor the whole sharing
+ process
 
 - Search friends should not be an API level function. The Android application will
   query the Facebook API using the cached access token. The API should offer a function to share a list, that
@@ -17,4 +18,3 @@
   Does Facebook has an API endpoint that given a user id gives back those info?
 
 - Modify test/Routes.js to add a after() method to cleanup db and close connection mongodb
-

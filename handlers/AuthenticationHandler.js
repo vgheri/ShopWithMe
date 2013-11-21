@@ -106,7 +106,7 @@ function handleLogoutRequest(req, res) {
 
 // Call facebook API to verify the token is valid
 // https://graph.facebook.com/me?access_token=$token
-// This function can be unit tested using https://developers.facebook.com/tools/explorer/?method=GET&path=me
+// This function can be integration tested using https://developers.facebook.com/tools/explorer/?method=GET&path=me
 // to obtain a user access token for my account
 // Get facebook user id as well and save it into the db. Add a field into the Account model.
 // Also try and get the expiration time of the token as well
